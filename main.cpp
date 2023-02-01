@@ -2,34 +2,45 @@
 #include<cmath>
 #include<iostream>
 #include<fstream>
+#include<matrix.h>
+
+int nx = 2; // number of cells in x-direction
+int ny = 2;
+int nz = 1;
+
+int pos(int i, int j, int k)
+{
+    return i + j * (nx+1) + k * (nx+1) * (ny+1) + 0;
+}
 
 struct Point
 {
-    double x;
-    double y;
-    double z;
+    Vector3 x;
+    //double x;
+    //double y;
+    //double z;
 
     Point()
     {
-        this->x = 0.0;
-        this->y = 0.0;
-        this->z = 0.0;
+        this->x(0) = 0.0;
+        this->x(1) = 0.0;
+        this->x(2) = 0.0;
     }
 
     Point(double x, double y, double z)
     {
-        this->x = x;
-        this->y = y;
-        this->z = z;
+        this->x(0) = x;
+        this->x(1) = y;
+        this->x(2) = z;
     }
 
     Point sum(double x, double y, double z)
     {
         Point c;
 
-        c.x = this->x + x;
-        c.y = this->y + y;
-        c.z = this->z + z;
+        c.x(0) = this->x(0) + x;
+        c.x(1) = this->x(1) + y;
+        c.x(2) = this->x(2) + z;
 
         return c;
     }
@@ -48,7 +59,8 @@ struct Line
 
     double len()
     {
-        return std::sqrt(std::pow(p1.x - p0.x, 2.) + std::pow(p1.y - p0.y, 2.) + std::pow(p1.z - p0.z, 2.));
+        Vector3 c = p1.x - p0.x;
+        return c.len();
     }
 
     double dl(int n)
@@ -58,17 +70,17 @@ struct Line
 
     double dx(int n)
     {
-        return std::abs(p1.x - p0.x) / double(n);
+        return std::abs(p1.x(0) - p0.x(0)) / double(n);
     }
 
     double dy(int n)
     {
-        return std::abs(p1.y - p0.y) / double(n);
+        return std::abs(p1.x(1) - p0.x(1)) / double(n);
     }
 
     double dz(int n)
     {
-        return std::abs(p1.z - p0.z) / double(n);
+        return std::abs(p1.x(2) - p0.x(2)) / double(n);
     }
 
     std::vector<Point> generate(int n)
@@ -87,6 +99,131 @@ struct Line
         return pts;
     }
 };
+
+struct IJK
+{
+    int i;
+    int j;
+    int k;
+
+    IJK(int i, int j, int k)
+    {
+        this->i = i;
+        this->j = j;
+        this->k = k;
+    }
+};
+
+struct Cell
+{
+    std::vector<IJK> ijk;
+
+    Cell(std::vector<IJK> ijk)
+    {
+        this->ijk = ijk;
+    }
+
+    double volume()
+    {
+    }
+};
+
+std::vector<Cell> cells;
+
+double triangle_area(Point& p0, Point& p1, Point& p2)
+{
+    return 0.5 * len(cross((p1.x - p0.x), (p2.x - p0.x)));
+}
+
+Vector3 vertex_centroid(std::vector<Point> points)
+{
+    Vector3 vc(0., 0., 0.);
+
+    for (Point& p: points)
+    {
+        vc += p.x;
+    }
+
+    vc /= points.size();
+
+    return vc;
+}
+
+void quad_area(std::vector<Point> points)
+{
+    area_ = 0.;
+    Centroid vc = vertex_centroid(points_);
+    PointPointer pvc = new Point(-1, vc);
+
+    for (int i=0; i<points_.size(); ++i)
+    {
+        PointPointers pts;
+        pts.push_back(points_[i]);
+
+        if (i == points_.size() - 1)
+        {
+            pts.push_back(points_[0]);
+        }
+        else
+        {
+            pts.push_back(points_[i+1]);
+        }
+
+        pts.push_back(pvc);
+
+        Area tri_area = triangle_area(pts);
+
+        area_ += tri_area;
+    }
+
+    assert(area_ != 0.);
+    assert(!std::isnan(area_));
+}
+
+void make_cells()
+{
+    for (int k=0; k<nz; ++k)
+    {
+        for (int j=0; j<ny; ++j)
+        {
+            for (int i=0; i<nx; ++i)
+            {
+                cells.push_back(IJK(i,j,k), IJK(i+1, j, k), IJK(i+1, j+1, k), IJK(i, j+1, k));
+                cells.push_back(IJK(i,j,k+1), IJK(i+1, j, k+1), IJK(i+1, j+1, k+1), IJK(i, j+1, k+1));
+            }
+        }
+    }
+}
+
+void make_surfaces()
+{
+    for (int j=0; j<ny; ++j)
+    {
+        for (int i=0; i<nx; ++i)
+        {
+            surfaces.push_back(IJK(i,j,0),  IJK(i+1, j, 0),  IJK(i+1, j+1, 0),  IJK(i, j+1, 0));
+            surfaces.push_back(IJK(i,j,nz), IJK(i+1, j, nz), IJK(i+1, j+1, nz), IJK(i, j+1, nz));
+        }
+    }
+
+    for (int j=0; j<ny; ++j)
+    {
+        for (int k=0; k<nz; ++k)
+        {
+            surfaces.push_back(IJK(0,j,k),  IJK(0, j, k+1),  IJK(0, j+1, k+1),  IJK(0, j+1, k));
+            surfaces.push_back(IJK(nx,j,k),  IJK(nx, j, k+1),  IJK(nx, j+1, k+1),  IJK(nx, j+1, k));
+        }
+    }
+
+    for (int i=0; i<nx; ++i)
+    {
+        for (int k=0; k<nz; ++k)
+        {
+            surfaces.push_back(IJK(i,0,k),  IJK(i+1, 0, k),  IJK(i+1, 0, k+1),  IJK(i, 0, k+1));
+            surfaces.push_back(IJK(i,ny,k),  IJK(i+1, ny, k),  IJK(i+1, ny, k+1),  IJK(i, ny, k+1));
+        }
+    }
+}
 
 int main()
 {
@@ -114,10 +251,6 @@ int main()
     Line l9(b, f);
     Line l10(c, g);
     Line l11(d, h);
-
-    int nx = 2; // number of cells in x-direction
-    int ny = 2;
-    int nz = 2;
 
     Point p[nx+1][ny+1][nz+1];
 
@@ -166,43 +299,55 @@ int main()
         }
     }
 
-    for (int i=1; i<nx; ++i)
+    {
+        for (int i=1; i<nx; ++i)
+        {
+            for (int k=1; k<nz; ++k)
+            {
+                Line l(p[i][0][0], p[i][0][nz]);
+                auto pts = l.generate(nz);
+                p[i][0][k] = pts[k];
+            }
+        }
+    }
+
+    {
+        for (int i=1; i<nx; ++i)
+        {
+            for (int k=1; k<nz; ++k)
+            {
+                Line l(p[i][ny][0], p[i][ny][nz]);
+                auto pts = l.generate(nz);
+                p[i][ny][k] = pts[k];
+            }
+        }
+    }
+
+    for (int i=0; i<nx+1; ++i)
     {
         for (int k=0; k<nz+1; ++k)
         {
             Line l(p[i][0][k], p[i][ny][k]);
             auto pts = l.generate(ny);
-            for (int j=1; j<ny; ++j)
-            {
-                p[i][j][k] = pts[j];
-            }
-        }
-    }
-
-    for (int k=1; k<nz; ++k)
-    {
-        for (int i=1; i<nx; ++i)
-        {
-            Line l(p[i][0][k], p[i][ny][k]);
-            auto pts = l.generate(nz);
-            for (int j=1; j<ny; ++j)
-            {
-                p[i][j][k] = pts[j];
-            }
-        }
-    }
-
-    for (int k=0; k<nz+1; ++k)
-    {
-        for (int i=0; i<nx+1; ++i)
-        {
             for (int j=0; j<ny+1; ++j)
             {
-                std::cout << i << "," << j << "," << k << " " << p[i][j][k].x << ", " << p[i][j][k].y << ", " << p[i][j][k].z << std::endl;
+                p[i][j][k] = pts[j];
             }
         }
     }
 
+    int ncell = nx * ny * nz;
+    int ncell_xy = 2 * nx * ny;
+    int ncell_xz = 2 * nx * nz;
+    int ncell_yz = 2 * ny * nz;
+    int ncell_sur = ncell_xy + ncell_xz + ncell_yz;
+    int ncell_all = ncell + ncell_xy + ncell_xz + ncell_yz;
+
+    std::cout << "ncell: " << ncell << std::endl;
+    std::cout << "ncell_xy: " << ncell_xy << std::endl;
+    std::cout << "ncell_xz: " << ncell_xz << std::endl;
+    std::cout << "ncell_yz: " << ncell_yz << std::endl;
+    
     std::ofstream out;
     out.open("str.vtk");
 
@@ -220,16 +365,104 @@ int main()
     out << (nx+1) * (ny+1) * (nz+1);
     out << " ";
     out << "float" << std::endl;
-    for (int i=0; i<nx+1; ++i)
+    for (int k=0; k<nz+1; ++k)
     {
         for (int j=0; j<ny+1; ++j)
         {
-		for (int k=0; k<nz+1; ++k)
-		{
-            out << p[i][j][k].x << " " << p[i][j][k].y << " " << p[i][j][k].z << std::endl;
-		}
+            for (int i=0; i<nx+1; ++i)
+            {
+                out << p[i][j][k].x(0) << " " << p[i][j][k].x(1) << " " << p[i][j][k].x(2) << std::endl;
+            }
         }
     }
+
+    out.close();
+
+
+    out.open("ustr.vtk");
+
+    out << "# vtk DataFile Version 3.0" << std::endl;
+    out << "All in VTK format" << std::endl;
+    out << "ASCII" << std::endl;
+    out << "DATASET UNSTRUCTURED_GRID" << std::endl;
+    out << "POINTS ";
+    out << (nx+1) * (ny+1) * (nz+1);
+    out << " ";
+    out << "float" << std::endl;
+    for (int k=0; k<nz+1; ++k)
+    {
+        for (int j=0; j<ny+1; ++j)
+        {
+            for (int i=0; i<nx+1; ++i)
+            {
+                out << p[i][j][k].x(0) << " " << p[i][j][k].x(1) << " " << p[i][j][k].x(2) << std::endl;
+            }
+        }
+    }
+    out << "CELLS ";
+    out << cells.size();
+    out << " ";
+    out << cells.size() * 9 + surfaces.size() * 5 << std::endl;
+    for (Surface& surface: surfaces)
+    {
+        out << 4 << " ";
+        for (IJK ijk: surface.ijk)
+        {
+            out << pos(ijk[0]) << " ";
+            out << pos(ijk[1]) << " ";
+            out << pos(ijk[2]) << " ";
+            out << pos(ijk[3]) << " ";
+        }
+        out << std::endl;
+    }
+
+    for (Cell& cell: cells)
+    {
+        out << 8 << " ";
+        for (IJK ijk: surface.ijk)
+        {
+            out << pos(ijk[0]) << " ";
+            out << pos(ijk[1]) << " ";
+            out << pos(ijk[2]) << " ";
+            out << pos(ijk[3]) << " ";
+            out << pos(ijk[4]) << " ";
+            out << pos(ijk[5]) << " ";
+            out << pos(ijk[6]) << " ";
+            out << pos(ijk[7]) << " ";
+        }
+
+        out << std::endl;
+    }
+
+    out << "CELL_TYPES ";
+    out << ncell_all << std::endl;
+    for (Surface& surface: surfaces)
+    {
+        out << 9 << std::endl;
+    }
+    for (Cell& cell: cells)
+    {
+        out << 12 << std::endl;
+    }
+
+    //out << "CELL_DATA ";
+    //out << ncell_sur << std::endl;
+    //out << "SCALARS Area float 1" << std::endl;
+    //out << "LOOKUP_TABLE default" << std::endl;
+    //for (int i=0; i<ncell_xy; ++i)
+    //{
+    //        out << pos(i, j, 0) << " ";
+    //        out << pos(i+1, j, 0) << " ";
+    //        out << pos(i+1, j+1, 0) << " ";
+    //        out << pos(i, j+1, 0) << " ";
+    //    out << 9 << std::endl;
+    //}
+
+
+
+
+
+
 
     out.close();
 
