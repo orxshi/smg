@@ -5,7 +5,7 @@
 
 struct Point
 {
-    double x;
+    double x; //
     double y;
     double z;
 
