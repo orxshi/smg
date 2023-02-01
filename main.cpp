@@ -5,7 +5,7 @@
 
 struct Point
 {
-    double x; //
+    double x;
     double y;
     double z;
 
@@ -126,12 +126,13 @@ int main()
         auto pts0 = l0.generate(nx);
         auto pts2 = l2.generate(nx);
         auto pts4 = l4.generate(nx);
+        auto pts6 = l6.generate(nx);
         for (int i=0; i<nx+1; ++i)
         {
             p[i][0][0] = pts0[i];
-            p[i][ny][0] = pts2[j];
+            p[i][ny][0] = pts2[i];
             p[i][0][nz] = pts4[i];
-            p[i][ny][nz] = pts6[j];
+            p[i][ny][nz] = pts6[i];
         }
     }
 
@@ -141,10 +142,10 @@ int main()
         auto pts3 = l3.generate(ny);
         auto pts5 = l5.generate(ny);
         auto pts7 = l7.generate(ny);
-        for (int j=0; j<nx+1; ++j)
+        for (int j=0; j<ny+1; ++j)
         {
-            p[0][j][0] = pts1[j];
-            p[nx][j][0] = pts3[j];
+            p[0][j][0] = pts3[j];
+            p[nx][j][0] = pts1[j];
             p[0][j][nz] = pts5[j];
             p[nx][j][nz] = pts7[j];
         }
@@ -152,80 +153,31 @@ int main()
 
     // discretize l8 and l9 and l10 and l11
     {
-        int i = 0;
-        int j = 0;
         auto pts8 = l8.generate(nz);
+        auto pts9 = l9.generate(nz);
+        auto pts10 = l10.generate(nz);
+        auto pts11 = l11.generate(nz);
         for (int k=0; k<nz+1; ++k)
         {
-            p[0][0][k] = pts[j];
+            p[0][0][k] = pts8[k];
+            p[nx][0][k] = pts9[k];
+            p[nx][ny][k] = pts10[k];
+            p[0][ny][k] = pts11[k];
         }
     }
-
-    {
-        int i = 0;
-        int j = ny;
-        auto pts = l9.generate(nz);
-        for (int k=0; k<nz+1; ++k)
-        {
-            p[i][j][k] = pts[j];
-        }
-    }
-
-    {
-        int i = nx;
-        int j = 0;
-        auto pts = l11.generate(nz);
-        for (int k=0; k<nz+1; ++k)
-        {
-            p[i][j][k] = pts[j];
-        }
-    }
-
-    {
-        int i = nx;
-        int j = ny;
-        auto pts = l10.generate(nz);
-        for (int k=0; k<nz+1; ++k)
-        {
-            p[i][j][k] = pts[j];
-        }
-    }
-
-
-
-
-    //for (int i=1; i<n; ++i)
-    //{
-    //    Line l(p[i][0], p[i][n]);
-    //    auto pts = l.generate(n);
-    //    for (int j=1; j<n; ++j)
-    //    {
-    //        p[i][j] = pts[j];
-    //    }
-    //}
 
     for (int i=1; i<nx; ++i)
     {
-        for (int k=1; i<nz; ++i)
+        for (int k=0; k<nz+1; ++k)
         {
             Line l(p[i][0][k], p[i][ny][k]);
-            auto pts = l.generate(nx);
+            auto pts = l.generate(ny);
             for (int j=1; j<ny; ++j)
             {
                 p[i][j][k] = pts[j];
             }
         }
     }
-
-    //for (int i=1; i<nx; ++i)
-    //{
-    //    Line l(p[i][0][nz], p[i][ny][nz]);
-    //    auto pts = l.generate(nx);
-    //    for (int j=1; j<ny; ++j)
-    //    {
-    //        p[i][j][nz] = pts[j];
-    //    }
-    //}
 
     for (int k=1; k<nz; ++k)
     {
@@ -240,16 +192,6 @@ int main()
         }
     }
 
-    //for (int k=1; k<nz; ++k)
-    //{
-    //    Line l(p[nx][0][k], p[nx][ny][k]);
-    //    auto pts = l.generate(nz);
-    //    for (int j=1; j<ny; ++j)
-    //    {
-    //        p[nx][j][k] = pts[j];
-    //    }
-    //}
-
     for (int k=0; k<nz+1; ++k)
     {
         for (int i=0; i<nx+1; ++i)
@@ -261,44 +203,35 @@ int main()
         }
     }
 
-    //std::ofstream out;
-    //out.open("str.vtk");
+    std::ofstream out;
+    out.open("str.vtk");
 
-    //out << "# vtk DataFile Version 3.0" << std::endl;
-    //out << "All in VTK format" << std::endl;
-    //out << "ASCII" << std::endl;
-    //out << "DATASET STRUCTURED_GRID" << std::endl;
-    //out << "DIMENSIONS " << std::endl;
-    //out << n+1;
-    //out << " ";
-    //out << n+1;
-    //out << " ";
-    //out << 1 << std::endl;
-    //out << "POINTS ";
-    //out << (n+1) * (n+1);
-    //out << " ";
-    //out << "float" << std::endl;
-    //for (int i=0; i<n+1; ++i)
-    //{
-    //    for (int j=0; j<n+1; ++j)
-    //    {
-    //        out << p[i][j].x << " " << p[i][j].y << " " << 0.0 << std::endl;
-    //    }
-    //}
+    out << "# vtk DataFile Version 3.0" << std::endl;
+    out << "All in VTK format" << std::endl;
+    out << "ASCII" << std::endl;
+    out << "DATASET STRUCTURED_GRID" << std::endl;
+    out << "DIMENSIONS " << std::endl;
+    out << nx+1;
+    out << " ";
+    out << ny+1;
+    out << " ";
+    out << nz+1 << std::endl;
+    out << "POINTS ";
+    out << (nx+1) * (ny+1) * (nz+1);
+    out << " ";
+    out << "float" << std::endl;
+    for (int i=0; i<nx+1; ++i)
+    {
+        for (int j=0; j<ny+1; ++j)
+        {
+		for (int k=0; k<nz+1; ++k)
+		{
+            out << p[i][j][k].x << " " << p[i][j][k].y << " " << p[i][j][k].z << std::endl;
+		}
+        }
+    }
 
-    //out.close();
-
-
-
-    //for (int i=0; i<n+1; ++i)
-    //{
-    //    for (int j=0; j<n+1; ++j)
-    //    {
-    //        std::cout << i << "," << j << " " << p[i][j].x << ", " << p[i][j].y << std::endl;
-    //    }
-    //}
-
-
+    out.close();
 
     return 0;
 }
