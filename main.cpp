@@ -8,7 +8,7 @@ const int nx = 2; // number of cells in x-direction
 const int ny = 2;
 const int nz = 1;
 
-    Vector3 p[nx+1][ny+1][nz+1];
+Vector3 p[nx+1][ny+1][nz+1];
 
 struct Line
 {
@@ -80,82 +80,11 @@ struct IJK
 
 int pos(IJK ijk)
 {
-	int i = ijk.i;
-	int j = ijk.j;
-	int k = ijk.k;
+    int i = ijk.i;
+    int j = ijk.j;
+    int k = ijk.k;
 
     return i + j * (nx+1) + k * (nx+1) * (ny+1) + 0;
-}
-
-//void Cell::volume(std::vector<Vector3>& points)
-//    {
-//        double volume = 0.;
-//
-//        Vector3 vc_cell = vertex_centroid(points);
-//
-//        for (Surface& face: faces_)
-//        {
-//            const PointPointers& pts = face->points();
-//
-//            Centroid vc_pyramid = vertex_centroid(pts);
-//
-//            Centroid ac_pyramid = 0.75 * face->centroid_ + 0.25 * vc_pyramid;
-//
-//            Vector3 dGF = face->centroid_ - vc_cell;
-//
-//            Volume vol_pyramid = (face->area_ * dot(dGF, face->normal_)) / 3.;
-//
-//            volume_ += std::abs(vol_pyramid);
-//
-//        }
-
-
-double triangle_area(std::vector<Vector3>& p)
-{
-    return 0.5 * len(cross((p[1] - p[0]), (p[2] - p[0])));
-}
-
-Vector3 vertex_centroid(std::vector<Vector3>& points)
-{
-    Vector3 vc(0., 0., 0.);
-
-    for (Vector3& p: points)
-    {
-        vc += p;
-    }
-
-    vc /= points.size();
-
-    return vc;
-}
-
-double quad_area(std::vector<Vector3>& points)
-{
-    double area = 0.;
-    Vector3 vc = vertex_centroid(points);
-
-    for (int i=0; i<points.size(); ++i)
-    {
-	    std::vector<Vector3> pts;
-        pts.push_back(points[i]);
-
-        if (i == points.size() - 1)
-        {
-            pts.push_back(points[0]);
-        }
-        else
-        {
-            pts.push_back(points[i+1]);
-        }
-
-        pts.push_back(vc);
-
-        double tri_area = triangle_area(pts);
-
-        area += tri_area;
-    }
-
-    return area;
 }
 
 struct Surface
@@ -166,17 +95,6 @@ struct Surface
     {
         this->ijk = ijk;
     }
-
-    double area()
-    {
-	    std::vector<Vector3> pts;
-	    for (IJK a: ijk)
-	    {
-		    pts.push_back(p[a.i][a.j][a.k]);
-	    }
-
-	    return quad_area(pts);
-    }
 };
 
 struct Cell
@@ -186,10 +104,6 @@ struct Cell
     Cell(std::vector<IJK> ijk)
     {
         this->ijk = ijk;
-    }
-
-    double volume()
-    {
     }
 };
 
@@ -251,6 +165,9 @@ void make_faces()
             {
                 faces.push_back(std::vector<IJK>{IJK(i,j,k), IJK(i+1, j, k), IJK(i+1, j+1, k), IJK(i, j+1, k)});
 		// parent: 
+		// if k-1 > 0
+		// 1: cell IJK(i,j,k-1)
+		// 2: cell IJK(i,j,k)
             }
         }
     }
@@ -262,6 +179,11 @@ void make_faces()
 		    for (int k=0; k<nz; ++k)
 		    {
 			    faces.push_back(std::vector<IJK>{IJK(i,j,k),  IJK(i, j, k+1),  IJK(i, j+1, k+1),  IJK(i, j+1, k)});
+
+		// parent: 
+		// if i-1 > 0
+		// 1: cell IJK(i-1,j,k)
+		// 2: cell IJK(i,j,k)
 		    }
 	    }
     }
@@ -273,6 +195,11 @@ void make_faces()
 		    for (int k=0; k<nz; ++k)
 		    {
 			    faces.push_back(std::vector<IJK>{IJK(i,j,k),  IJK(i+1, j, k),  IJK(i+1, j, k+1),  IJK(i, j, k+1)});
+
+		// parent: 
+		// if j-1 > 0
+		// 1: cell IJK(i,j-1,k)
+		// 2: cell IJK(i,j,k)
 		    }
 	    }
     }
@@ -494,25 +421,6 @@ int main()
     {
         out << 12 << std::endl;
     }
-
-    out << "CELL_DATA ";
-    out << ncell_all << std::endl;
-    out << "SCALARS Area float 1" << std::endl;
-    out << "LOOKUP_TABLE default" << std::endl;
-    for (Surface& surface: surfaces)
-    {
-	    out << surface.area() << std::endl;
-    }
-    for (Cell& cell: cells)
-    {
-	    out << 0 << std::endl;
-    }
-
-
-
-
-
-
 
     out.close();
 
