@@ -208,30 +208,30 @@ void make_faces()
 
 int main()
 {
-    Vector3 a(0.0, 0.0, 0.0);
-    Vector3 b(1.0, 0.0, 0.0);
-    Vector3 c(1.0, 1.0, 0.0);
-    Vector3 d(0.0, 1.0, 0.0);
+    Vector3 p0(0.0, 0.0, 0.0);
+    Vector3 p1(1.0, 0.0, 0.0);
+    Vector3 p2(1.0, 1.0, 0.0);
+    Vector3 p3(0.0, 1.0, 0.0);
 
-    Vector3 e(0.0, 0.0, 1.0);
-    Vector3 f(1.0, 0.0, 1.0);
-    Vector3 g(1.0, 1.0, 1.0);
-    Vector3 h(0.0, 1.0, 1.0);
+    Vector3 p4(0.0, 0.0, 1.0);
+    Vector3 p5(1.0, 0.0, 1.0);
+    Vector3 p6(1.0, 1.0, 1.0);
+    Vector3 p7(0.0, 1.0, 1.0);
 
-    Line l0(a, b);
-    Line l1(b, c);
-    Line l2(d, c);
-    Line l3(a, d);
+    Line l0(p0, p1);
+    Line l1(p1, p2);
+    Line l2(p3, p2);
+    Line l3(p0, p3);
 
-    Line l4(e, f);
-    Line l5(f, g);
-    Line l6(h, g);
-    Line l7(e, h);
+    Line l4(p4, p5);
+    Line l5(p5, p6);
+    Line l6(p7, p6);
+    Line l7(p4, p7);
 
-    Line l8(a, e);
-    Line l9(b, f);
-    Line l10(c, g);
-    Line l11(d, h);
+    Line l8(p0, p4);
+    Line l9(p1, p5);
+    Line l10(p2, p6);
+    Line l11(p3, p7);
 
 
     // discretize l0 and l2 and l4 and l6
