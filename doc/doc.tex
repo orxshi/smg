@@ -9,6 +9,8 @@
 
 \begin{document}
 
+\section{Coordinate system}
+
 \begin{figure}
 \centering
 
@@ -38,7 +40,17 @@
 
 \end{figure}
 
+\section{Mesh resolution}
+
+Provide $nx$, $ny$, $nz$.
+
+\section{Indices}
+
+Only points and cells use IJK indices. Surfaces and faces have numerals.
+
 \section{Generating points}
+
+There $(nx+1)\times (ny+1) \times (nz+1)$ points will be allocated.
 
 Provide 8 corner points in the following order.
 
@@ -46,14 +58,14 @@ Provide 8 corner points in the following order.
 \begin{tabular}{llll}
 Point & I & J & K\\
 	  \midrule
-	  1 & $i$ & $j$ & $k$\\
-	      2 & $i+1$ & $j$ & $k$\\
-	      3 & $i+1$ & $j+1$ & $k$\\
-	      4 & $i$ & $j+1$ & $k$\\
-	      5 & $i$ & $j$ & $k+1$\\
-	      6 & $i+1$ & $j$ & $k+1$\\
-	      7 & $i+1$ & $j+1$ & $k+1$\\
-	      8 & $i$ & $j+1$ & $k+1$
+	  0 & $i$ & $j$ & $k$\\
+	      1 & $i+1$ & $j$ & $k$\\
+	      2 & $i+1$ & $j+1$ & $k$\\
+	      3 & $i$ & $j+1$ & $k$\\
+	      4 & $i$ & $j$ & $k+1$\\
+	      5 & $i+1$ & $j$ & $k+1$\\
+	      6 & $i+1$ & $j+1$ & $k+1$\\
+	      7 & $i$ & $j+1$ & $k+1$
 	      \end{tabular}
 	      \end{center}
 
@@ -514,19 +526,30 @@ Discretize lines 8, 9, 10, 11 to $nz$ points.
 \end{tikzpicture}
 \end{minipage}
 
-\subsection{Generation of inner surface points}
+\begin{center}
+\begin{tabular}{lll}
+$I[0,nx-1]$ & $J[1,ny-1]$ & $K[0,nz-1]$\\ 
+\midrule
+$i$ & $j$ & $k$\\
+	$i+1$ & $j$ & $k$\\ 
+	$i+1$ & $j$ & $k+1$\\ 
+	$i$ & $j$ & $k+1$
+	\end{tabular}
+	\end{center}
 
-Make lines from $i=[1,nx-1]$, $j=0$ and $k=[1,nz-1]$.
+	\subsection{Generation of inner surface points}
 
-\begin{figure}[H]
-\centering
+	Make lines from $i=[1,nx-1]$, $j=0$ and $k=[1,nz-1]$.
 
-\tdplotsetmaincoords{60}{130}
+	\begin{figure}[H]
+	\centering
 
-\begin{tikzpicture}[scale=2,tdplot_main_coords]
-\coordinate (O) at (0,0,0);
-\tdplotsetcoord{P}{1.732}{54.74}{45}
-\draw[thick,->] (0,0,0) -- (1,0,0) node[anchor=north east]{$i$};
+	\tdplotsetmaincoords{60}{130}
+
+	\begin{tikzpicture}[scale=2,tdplot_main_coords]
+	\coordinate (O) at (0,0,0);
+	\tdplotsetcoord{P}{1.732}{54.74}{45}
+	\draw[thick,->] (0,0,0) -- (1,0,0) node[anchor=north east]{$i$};
 \draw[thick,->] (0,0,0) -- (0,1,0) node[anchor=north west]{$j$};
 \draw[thick,->] (0,0,0) -- (0,0,1) node[anchor=south]{$k$};
 
@@ -795,82 +818,93 @@ Connect surface points. Make lines from $i=[0,nx]$, $j=[0,ny]$ and $k=[0,nz]$. T
 
 \subsection{IJ planes}
 
-\begin{center}
+\begin{table}[H]
+\centering
+\caption{Point indices to make IJ0 surfaces}
 \begin{tabular}{lll}
 I$[0,nx-1]$ & J$[0,ny-1]$ & K$[0]$\\
-	  \midrule
-	  $i$ & $j$ & $k$\\
-	      $i+1$ & $j$ & $k$\\
-	      $i+1$ & $j+1$ & $k$\\
-	      $i$ & $j+1$ & $k$
-	      \end{tabular}
-	      \end{center}
+	\midrule
+	$i$ & $j$ & $k$\\
+	    $i+1$ & $j$ & $k$\\
+	    $i+1$ & $j+1$ & $k$\\
+	    $i$ & $j+1$ & $k$
+	    \end{tabular}
+	    \end{table}
 
-\begin{minipage}{0.3\textwidth}
-\centering
-\tdplotsetmaincoords{60}{130}
-\begin{tikzpicture}[scale=2,tdplot_main_coords]
-\coordinate (O) at (0,0,0);
-\tdplotsetcoord{P}{1.732}{54.74}{45}
+    for (int j=0; j<ny; ++j)
+    {
+        for (int i=0; i<nx; ++i)
+        {
+            surfaces.push_back(std::vector<IJK>{IJK(i,j,0),  IJK(i+1, j, 0),  IJK(i+1, j+1, 0),  IJK(i, j+1, 0)});
+            surfaces.push_back(std::vector<IJK>{IJK(i,j,nz), IJK(i+1, j, nz), IJK(i+1, j+1, nz), IJK(i, j+1, nz)});
+        }
+    }
 
-\draw[color=red] (O) -- (Px);
-\draw[color=red] (O) -- (Py);
-\draw[color=red] (O) -- (Pz);
-\draw[color=red] (Px) -- (Pxy);
-\draw[color=red] (Py) -- (Pxy);
-\draw[color=red] (Px) -- (Pxz);
-\draw[color=red] (Pz) -- (Pxz);
-\draw[color=red] (Py) -- (Pyz);
-\draw[color=red] (Pz) -- (Pyz);
-\draw[color=red] (Pxy) -- (P);
-\draw[color=red] (Pxz) -- (P);
-\draw[color=red] (Pyz) -- (P);
+	    \begin{minipage}{0.3\textwidth}
+	    \centering
+	    \tdplotsetmaincoords{60}{130}
+	    \begin{tikzpicture}[scale=2,tdplot_main_coords]
+	    \coordinate (O) at (0,0,0);
+	    \tdplotsetcoord{P}{1.732}{54.74}{45}
 
-\draw[color=blue] (0.0,0.0,0.0) -- (0.2,0.0,0.0);
-\draw[color=blue] (0.2,0.0,0.0) -- (0.2,0.2,0.0);
-\draw[color=blue] (0.2,0.2,0.0) -- (0.0,0.2,0.0);
-\draw[color=blue] (0.0,0.2,0.0) -- (0.0,0.0,0.0);
+	    \draw[color=red] (O) -- (Px);
+	    \draw[color=red] (O) -- (Py);
+	    \draw[color=red] (O) -- (Pz);
+	    \draw[color=red] (Px) -- (Pxy);
+	    \draw[color=red] (Py) -- (Pxy);
+	    \draw[color=red] (Px) -- (Pxz);
+	    \draw[color=red] (Pz) -- (Pxz);
+	    \draw[color=red] (Py) -- (Pyz);
+	    \draw[color=red] (Pz) -- (Pyz);
+	    \draw[color=red] (Pxy) -- (P);
+	    \draw[color=red] (Pxz) -- (P);
+	    \draw[color=red] (Pyz) -- (P);
 
-\end{tikzpicture}
-\end{minipage}
-\begin{minipage}{0.3\textwidth}
-\centering
-\tdplotsetmaincoords{60}{130}
+	    \draw[color=blue] (0.0,0.0,0.0) -- (0.2,0.0,0.0);
+	    \draw[color=blue] (0.2,0.0,0.0) -- (0.2,0.2,0.0);
+	    \draw[color=blue] (0.2,0.2,0.0) -- (0.0,0.2,0.0);
+	    \draw[color=blue] (0.0,0.2,0.0) -- (0.0,0.0,0.0);
 
-\begin{tikzpicture}[scale=2,tdplot_main_coords]
-\coordinate (O) at (0,0,0);
-\tdplotsetcoord{P}{1.732}{54.74}{45}
+	    \end{tikzpicture}
+	    \end{minipage}
+	    \begin{minipage}{0.3\textwidth}
+	    \centering
+	    \tdplotsetmaincoords{60}{130}
 
-\draw[color=red] (O) -- (Px);
-\draw[color=red] (O) -- (Py);
-\draw[color=red] (O) -- (Pz);
-\draw[color=red] (Px) -- (Pxy);
-\draw[color=red] (Py) -- (Pxy);
-\draw[color=red] (Px) -- (Pxz);
-\draw[color=red] (Pz) -- (Pxz);
-\draw[color=red] (Py) -- (Pyz);
-\draw[color=red] (Pz) -- (Pyz);
-\draw[color=red] (Pxy) -- (P);
-\draw[color=red] (Pxz) -- (P);
-\draw[color=red] (Pyz) -- (P);
+	    \begin{tikzpicture}[scale=2,tdplot_main_coords]
+	    \coordinate (O) at (0,0,0);
+	    \tdplotsetcoord{P}{1.732}{54.74}{45}
 
-\FPset\a{0.2}
-\FPset\k{0.0}
-\FPset\j{0.0}
-\FPadd\ja\j\a
-\foreach \i in {0.0,0.2,...,0.8}{
-    \FPadd\ia\i\a
+	    \draw[color=red] (O) -- (Px);
+	    \draw[color=red] (O) -- (Py);
+	    \draw[color=red] (O) -- (Pz);
+	    \draw[color=red] (Px) -- (Pxy);
+	    \draw[color=red] (Py) -- (Pxy);
+	    \draw[color=red] (Px) -- (Pxz);
+	    \draw[color=red] (Pz) -- (Pxz);
+	    \draw[color=red] (Py) -- (Pyz);
+	    \draw[color=red] (Pz) -- (Pyz);
+	    \draw[color=red] (Pxy) -- (P);
+	    \draw[color=red] (Pxz) -- (P);
+	    \draw[color=red] (Pyz) -- (P);
 
-	\coordinate (A) at (\i,\j,\k);
-    \coordinate (B) at (\ia,\j,\k);
-    \coordinate (C) at (\ia,\ja,\k);
-    \coordinate (D) at (\i,\ja,\k);
+	    \FPset\a{0.2}
+	    \FPset\k{0.0}
+	    \FPset\j{0.0}
+	    \FPadd\ja\j\a
+	    \foreach \i in {0.0,0.2,...,0.8}{
+		\FPadd\ia\i\a
 
-    \draw[color=blue] (A) -- (B);
-    \draw[color=blue] (B) -- (C);
-    \draw[color=blue] (C) -- (D);
-    \draw[color=blue] (D) -- (A);
-}
+		    \coordinate (A) at (\i,\j,\k);
+		\coordinate (B) at (\ia,\j,\k);
+		\coordinate (C) at (\ia,\ja,\k);
+		\coordinate (D) at (\i,\ja,\k);
+
+		\draw[color=blue] (A) -- (B);
+		\draw[color=blue] (B) -- (C);
+		\draw[color=blue] (C) -- (D);
+		\draw[color=blue] (D) -- (A);
+	    }
 
 \end{tikzpicture}
 \end{minipage}
@@ -1112,72 +1146,85 @@ I$[0,nx-1]$ & J$[0,ny-1]$ & K$[0]$\\
 
 \subsection{JK planes}
 
-\begin{minipage}{0.3\textwidth}
+\begin{table}[H]
 \centering
-\tdplotsetmaincoords{60}{130}
+\caption{Point indices to make IJ surfaces}
+\begin{tabular}{lll}
+I$[0,nx-1]$ & J$[0,ny-1]$ & K$[0]$\\
+	\midrule
+	$i$ & $j$ & $k$\\
+	    $i$ & $j$ & $k+1$\\
+	    $i$ & $j+1$ & $k+1$\\
+	    $i$ & $j+1$ & $k$
+	    \end{tabular}
+	    \end{table}
 
-\begin{tikzpicture}[scale=2,tdplot_main_coords]
-\coordinate (O) at (0,0,0);
-\tdplotsetcoord{P}{1.732}{54.74}{45}
+	    \begin{minipage}{0.3\textwidth}
+	    \centering
+	    \tdplotsetmaincoords{60}{130}
 
-\draw[color=red] (O) -- (Px);
-\draw[color=red] (O) -- (Py);
-\draw[color=red] (O) -- (Pz);
-\draw[color=red] (Px) -- (Pxy);
-\draw[color=red] (Py) -- (Pxy);
-\draw[color=red] (Px) -- (Pxz);
-\draw[color=red] (Pz) -- (Pxz);
-\draw[color=red] (Py) -- (Pyz);
-\draw[color=red] (Pz) -- (Pyz);
-\draw[color=red] (Pxy) -- (P);
-\draw[color=red] (Pxz) -- (P);
-\draw[color=red] (Pyz) -- (P);
+	    \begin{tikzpicture}[scale=2,tdplot_main_coords]
+	    \coordinate (O) at (0,0,0);
+	    \tdplotsetcoord{P}{1.732}{54.74}{45}
 
-\draw[color=blue] (0.0,0.0,0.0) -- (0.0,0.0,0.2);
-\draw[color=blue] (0.0,0.0,0.2) -- (0.0,0.2,0.2);
-\draw[color=blue] (0.0,0.2,0.2) -- (0.0,0.2,0.0);
-\draw[color=blue] (0.0,0.2,0.0) -- (0.0,0.0,0.0);
+	    \draw[color=red] (O) -- (Px);
+	    \draw[color=red] (O) -- (Py);
+	    \draw[color=red] (O) -- (Pz);
+	    \draw[color=red] (Px) -- (Pxy);
+	    \draw[color=red] (Py) -- (Pxy);
+	    \draw[color=red] (Px) -- (Pxz);
+	    \draw[color=red] (Pz) -- (Pxz);
+	    \draw[color=red] (Py) -- (Pyz);
+	    \draw[color=red] (Pz) -- (Pyz);
+	    \draw[color=red] (Pxy) -- (P);
+	    \draw[color=red] (Pxz) -- (P);
+	    \draw[color=red] (Pyz) -- (P);
 
-\end{tikzpicture}
-\end{minipage}
-\begin{minipage}{0.3\textwidth}
-\centering
-\tdplotsetmaincoords{60}{130}
+	    \draw[color=blue] (0.0,0.0,0.0) -- (0.0,0.0,0.2);
+	    \draw[color=blue] (0.0,0.0,0.2) -- (0.0,0.2,0.2);
+	    \draw[color=blue] (0.0,0.2,0.2) -- (0.0,0.2,0.0);
+	    \draw[color=blue] (0.0,0.2,0.0) -- (0.0,0.0,0.0);
 
-\begin{tikzpicture}[scale=2,tdplot_main_coords]
-\coordinate (O) at (0,0,0);
-\tdplotsetcoord{P}{1.732}{54.74}{45}
+	    \end{tikzpicture}
+	    \end{minipage}
+	    \begin{minipage}{0.3\textwidth}
+	    \centering
+	    \tdplotsetmaincoords{60}{130}
 
-\draw[color=red] (O) -- (Px);
-\draw[color=red] (O) -- (Py);
-\draw[color=red] (O) -- (Pz);
-\draw[color=red] (Px) -- (Pxy);
-\draw[color=red] (Py) -- (Pxy);
-\draw[color=red] (Px) -- (Pxz);
-\draw[color=red] (Pz) -- (Pxz);
-\draw[color=red] (Py) -- (Pyz);
-\draw[color=red] (Pz) -- (Pyz);
-\draw[color=red] (Pxy) -- (P);
-\draw[color=red] (Pxz) -- (P);
-\draw[color=red] (Pyz) -- (P);
+	    \begin{tikzpicture}[scale=2,tdplot_main_coords]
+	    \coordinate (O) at (0,0,0);
+	    \tdplotsetcoord{P}{1.732}{54.74}{45}
 
-\FPset\a{0.2}
-\FPset\i{0.0}
-\FPset\j{0.0}
-    \FPadd\ja\j\a
-	\foreach \k in {0.0,0.2,...,0.8}{
-	    \FPadd\ka\k\a
+	    \draw[color=red] (O) -- (Px);
+	    \draw[color=red] (O) -- (Py);
+	    \draw[color=red] (O) -- (Pz);
+	    \draw[color=red] (Px) -- (Pxy);
+	    \draw[color=red] (Py) -- (Pxy);
+	    \draw[color=red] (Px) -- (Pxz);
+	    \draw[color=red] (Pz) -- (Pxz);
+	    \draw[color=red] (Py) -- (Pyz);
+	    \draw[color=red] (Pz) -- (Pyz);
+	    \draw[color=red] (Pxy) -- (P);
+	    \draw[color=red] (Pxz) -- (P);
+	    \draw[color=red] (Pyz) -- (P);
 
-		\coordinate (A) at (\i,\j,\k);
-	    \coordinate (B) at (\i,\j,\ka);
-	    \coordinate (C) at (\i,\ja,\ka);
-	    \coordinate (D) at (\i,\ja,\k);
+	    \FPset\a{0.2}
+	    \FPset\i{0.0}
+	    \FPset\j{0.0}
+	    \FPadd\ja\j\a
+	    \foreach \k in {0.0,0.2,...,0.8}{
+		\FPadd\ka\k\a
 
-	    \draw[color=blue] (A) -- (B);
-	    \draw[color=blue] (B) -- (C);
-	    \draw[color=blue] (C) -- (D);
-	    \draw[color=blue] (D) -- (A);
-	}
+		    \coordinate (A) at (\i,\j,\k);
+		\coordinate (B) at (\i,\j,\ka);
+		\coordinate (C) at (\i,\ja,\ka);
+		\coordinate (D) at (\i,\ja,\k);
+
+		\draw[color=blue] (A) -- (B);
+		\draw[color=blue] (B) -- (C);
+		\draw[color=blue] (C) -- (D);
+		\draw[color=blue] (D) -- (A);
+	    }
 
 \end{tikzpicture}
 \end{minipage}
@@ -1314,20 +1361,20 @@ I$[0,nx-1]$ & J$[0,ny-1]$ & K$[0]$\\
 \FPset\a{0.2}
 \FPset\i{1.0}
 \FPset\j{0.0}
-    \FPadd\ja\j\a
-	\foreach \k in {0.0,0.2,...,0.8}{
-	    \FPadd\ka\k\a
+\FPadd\ja\j\a
+\foreach \k in {0.0,0.2,...,0.8}{
+    \FPadd\ka\k\a
 
-		\coordinate (A) at (\i,\j,\k);
-	    \coordinate (B) at (\i,\j,\ka);
-	    \coordinate (C) at (\i,\ja,\ka);
-	    \coordinate (D) at (\i,\ja,\k);
+	\coordinate (A) at (\i,\j,\k);
+    \coordinate (B) at (\i,\j,\ka);
+    \coordinate (C) at (\i,\ja,\ka);
+    \coordinate (D) at (\i,\ja,\k);
 
-	    \draw[color=blue] (A) -- (B);
-	    \draw[color=blue] (B) -- (C);
-	    \draw[color=blue] (C) -- (D);
-	    \draw[color=blue] (D) -- (A);
-	}
+    \draw[color=blue] (A) -- (B);
+    \draw[color=blue] (B) -- (C);
+    \draw[color=blue] (C) -- (D);
+    \draw[color=blue] (D) -- (A);
+}
 
 \end{tikzpicture}
 \end{minipage}
@@ -1448,19 +1495,19 @@ I$[0,nx-1]$ & J$[0,ny-1]$ & K$[0]$\\
 \FPset\j{0.0}
 \FPset\i{0.0}
 \FPadd\ia\i\a
-	\foreach \k in {0.0,0.2,...,0.8}{
-	    \FPadd\ka\k\a
+\foreach \k in {0.0,0.2,...,0.8}{
+    \FPadd\ka\k\a
 
-		\coordinate (A) at (\i,\j,\k);
-	    \coordinate (B) at (\i,\j,\ka);
-	    \coordinate (C) at (\ia,\j,\ka);
-	    \coordinate (D) at (\ia,\j,\k);
+	\coordinate (A) at (\i,\j,\k);
+    \coordinate (B) at (\i,\j,\ka);
+    \coordinate (C) at (\ia,\j,\ka);
+    \coordinate (D) at (\ia,\j,\k);
 
-	    \draw[color=blue] (A) -- (B);
-	    \draw[color=blue] (B) -- (C);
-	    \draw[color=blue] (C) -- (D);
-	    \draw[color=blue] (D) -- (A);
-	}
+    \draw[color=blue] (A) -- (B);
+    \draw[color=blue] (B) -- (C);
+    \draw[color=blue] (C) -- (D);
+    \draw[color=blue] (D) -- (A);
+}
 
 \end{tikzpicture}
 \end{minipage}
@@ -1617,19 +1664,19 @@ I$[0,nx-1]$ & J$[0,ny-1]$ & K$[0]$\\
 \FPset\j{1.0}
 \FPset\i{0.0}
 \FPadd\ia\i\a
-	\foreach \k in {0.0,0.2,...,0.8}{
-	    \FPadd\ka\k\a
+\foreach \k in {0.0,0.2,...,0.8}{
+    \FPadd\ka\k\a
 
-		\coordinate (A) at (\i,\j,\k);
-	    \coordinate (B) at (\i,\j,\ka);
-	    \coordinate (C) at (\ia,\j,\ka);
-	    \coordinate (D) at (\ia,\j,\k);
+	\coordinate (A) at (\i,\j,\k);
+    \coordinate (B) at (\i,\j,\ka);
+    \coordinate (C) at (\ia,\j,\ka);
+    \coordinate (D) at (\ia,\j,\k);
 
-	    \draw[color=blue] (A) -- (B);
-	    \draw[color=blue] (B) -- (C);
-	    \draw[color=blue] (C) -- (D);
-	    \draw[color=blue] (D) -- (A);
-	}
+    \draw[color=blue] (A) -- (B);
+    \draw[color=blue] (B) -- (C);
+    \draw[color=blue] (C) -- (D);
+    \draw[color=blue] (D) -- (A);
+}
 
 \end{tikzpicture}
 \end{minipage}
@@ -1697,22 +1744,22 @@ I$[0,nx-1]$ & J$[0,ny-1]$ & K$[0]$\\
 
 \section{Making cells}
 
-Make cells from $i=[0,nx-1]$, $j=[0,ny-1]$ and $k=[0,nz-1]$.
-
-\begin{center}
+\begin{table}[H]
+\centering
+\caption{Point indices to make cell $(i,j,k)$}. Numeral point numbers are to simplify visualization of ordering.
 \begin{tabular}{llll}
-Point & I & J & K\\
+Point & $I[0,nx-1]$ & $J[0,ny-1]$ & $K[0,nz-1]$\\
 	  \midrule
-	  1 & $i$ & $j$ & $k$\\
-	      2 & $i+1$ & $j$ & $k$\\
-	      3 & $i+1$ & $j+1$ & $k$\\
-	      4 & $i$ & $j+1$ & $k$\\
-	      5 & $i$ & $j$ & $k+1$\\
-	      6 & $i+1$ & $j$ & $k+1$\\
-	      7 & $i+1$ & $j+1$ & $k+1$\\
-	      8 & $i$ & $j+1$ & $k+1$
+	  0 & $i$ & $j$ & $k$\\
+	      1 & $i+1$ & $j$ & $k$\\
+	      2 & $i+1$ & $j+1$ & $k$\\
+	      3 & $i$ & $j+1$ & $k$\\
+	      4 & $i$ & $j$ & $k+1$\\
+	      5 & $i+1$ & $j$ & $k+1$\\
+	      6 & $i+1$ & $j+1$ & $k+1$\\
+	      7 & $i$ & $j+1$ & $k+1$
 	      \end{tabular}
-	      \end{center}
+	      \end{table}
 
 	      \begin{figure}[H]
 	      \centering
@@ -1747,5 +1794,528 @@ Point & I & J & K\\
 \end{tikzpicture}
 \end{figure}
 
+\section{Making faces}
 
-\end{document}
+\subsection{Making IJ faces}
+
+\begin{minipage}{0.25\textwidth}
+\centering
+\tdplotsetmaincoords{60}{130}
+\begin{tikzpicture}[scale=2,tdplot_main_coords]
+\coordinate (O) at (0,0,0);
+\tdplotsetcoord{P}{1.732}{54.74}{45}
+
+\draw[color=red] (O) -- (Px);
+\draw[color=red] (O) -- (Py);
+\draw[color=red] (O) -- (Pz);
+\draw[color=red] (Px) -- (Pxy);
+\draw[color=red] (Py) -- (Pxy);
+\draw[color=red] (Px) -- (Pxz);
+\draw[color=red] (Pz) -- (Pxz);
+\draw[color=red] (Py) -- (Pyz);
+\draw[color=red] (Pz) -- (Pyz);
+\draw[color=red] (Pxy) -- (P);
+\draw[color=red] (Pxz) -- (P);
+\draw[color=red] (Pyz) -- (P);
+
+\draw[color=blue] (0.0,0.0,0.2) -- (0.2,0.0,0.2);
+\draw[color=blue] (0.2,0.0,0.2) -- (0.2,0.2,0.2);
+\draw[color=blue] (0.2,0.2,0.2) -- (0.0,0.2,0.2);
+\draw[color=blue] (0.0,0.2,0.2) -- (0.0,0.0,0.2);
+
+\end{tikzpicture}
+\end{minipage}
+\begin{minipage}{0.25\textwidth}
+\centering
+\tdplotsetmaincoords{60}{130}
+\begin{tikzpicture}[scale=2,tdplot_main_coords]
+\coordinate (O) at (0,0,0);
+\tdplotsetcoord{P}{1.732}{54.74}{45}
+
+\draw[color=red] (O) -- (Px);
+\draw[color=red] (O) -- (Py);
+\draw[color=red] (O) -- (Pz);
+\draw[color=red] (Px) -- (Pxy);
+\draw[color=red] (Py) -- (Pxy);
+\draw[color=red] (Px) -- (Pxz);
+\draw[color=red] (Pz) -- (Pxz);
+\draw[color=red] (Py) -- (Pyz);
+\draw[color=red] (Pz) -- (Pyz);
+\draw[color=red] (Pxy) -- (P);
+\draw[color=red] (Pxz) -- (P);
+\draw[color=red] (Pyz) -- (P);
+
+\FPset\a{0.2}
+\FPset\k{0.2}
+\FPset\j{0.0}
+%\foreach \j in {0.0,0.2,...,0.8}{
+    \FPadd\ja\j\a
+	\foreach \i in {0.0,0.2,...,0.8}{
+	    \FPadd\ia\i\a
+
+		\coordinate (A) at (\i,\j,\k);
+	    \coordinate (B) at (\ia,\j,\k);
+	    \coordinate (C) at (\ia,\ja,\k);
+	    \coordinate (D) at (\i,\ja,\k);
+
+	    \draw[color=blue] (A) -- (B);
+	    \draw[color=blue] (B) -- (C);
+	    \draw[color=blue] (C) -- (D);
+	    \draw[color=blue] (D) -- (A);
+	}
+    %}
+
+    \end{tikzpicture}
+    \end{minipage}
+    \begin{minipage}{0.25\textwidth}
+    \centering
+    \tdplotsetmaincoords{60}{130}
+    \begin{tikzpicture}[scale=2,tdplot_main_coords]
+    \coordinate (O) at (0,0,0);
+    \tdplotsetcoord{P}{1.732}{54.74}{45}
+
+    \draw[color=red] (O) -- (Px);
+    \draw[color=red] (O) -- (Py);
+    \draw[color=red] (O) -- (Pz);
+    \draw[color=red] (Px) -- (Pxy);
+    \draw[color=red] (Py) -- (Pxy);
+    \draw[color=red] (Px) -- (Pxz);
+    \draw[color=red] (Pz) -- (Pxz);
+    \draw[color=red] (Py) -- (Pyz);
+    \draw[color=red] (Pz) -- (Pyz);
+    \draw[color=red] (Pxy) -- (P);
+    \draw[color=red] (Pxz) -- (P);
+    \draw[color=red] (Pyz) -- (P);
+
+    \FPset\a{0.2}
+    \FPset\k{0.2}
+    \foreach \j in {0.0,0.2,...,0.8}{
+	\FPadd\ja\j\a
+	    \foreach \i in {0.0,0.2,...,0.8}{
+		\FPadd\ia\i\a
+
+		    \coordinate (A) at (\i,\j,\k);
+		\coordinate (B) at (\ia,\j,\k);
+		\coordinate (C) at (\ia,\ja,\k);
+		\coordinate (D) at (\i,\ja,\k);
+
+		\draw[color=blue] (A) -- (B);
+		\draw[color=blue] (B) -- (C);
+		\draw[color=blue] (C) -- (D);
+		\draw[color=blue] (D) -- (A);
+	    }
+    }
+
+\end{tikzpicture}
+\end{minipage}
+\begin{minipage}{0.25\textwidth}
+\centering
+\tdplotsetmaincoords{60}{130}
+\begin{tikzpicture}[scale=2,tdplot_main_coords]
+\coordinate (O) at (0,0,0);
+\tdplotsetcoord{P}{1.732}{54.74}{45}
+
+\draw[color=red] (O) -- (Px);
+\draw[color=red] (O) -- (Py);
+\draw[color=red] (O) -- (Pz);
+\draw[color=red] (Px) -- (Pxy);
+\draw[color=red] (Py) -- (Pxy);
+\draw[color=red] (Px) -- (Pxz);
+\draw[color=red] (Pz) -- (Pxz);
+\draw[color=red] (Py) -- (Pyz);
+\draw[color=red] (Pz) -- (Pyz);
+\draw[color=red] (Pxy) -- (P);
+\draw[color=red] (Pxz) -- (P);
+\draw[color=red] (Pyz) -- (P);
+
+\FPset\a{0.2}
+\foreach \k in {0.2,0.4,...,0.8}{
+    \foreach \j in {0.0,0.2,...,0.8}{
+	\FPadd\ja\j\a
+	    \foreach \i in {0.0,0.2,...,0.8}{
+		\FPadd\ia\i\a
+
+		    \coordinate (A) at (\i,\j,\k);
+		\coordinate (B) at (\ia,\j,\k);
+		\coordinate (C) at (\ia,\ja,\k);
+		\coordinate (D) at (\i,\ja,\k);
+
+		\draw[color=blue] (A) -- (B);
+		\draw[color=blue] (B) -- (C);
+		\draw[color=blue] (C) -- (D);
+		\draw[color=blue] (D) -- (A);
+	    }
+    }
+}
+
+\end{tikzpicture}
+\end{minipage}
+
+
+\begin{table}[H]
+\centering
+\caption{Point indices to make IJ faces}
+\begin{tabular}{lll}
+$I[0,nx-1]$ & $J[0,ny-1]$ & $K[1,nz-1]$\\ 
+\midrule
+$i$ & $j$ & $k$\\
+	$i+1$ & $j$ & $k$\\ 
+	$i+1$ & $j+1$ & $k$\\ 
+	$i$ & $j+1$ & $k$
+	\end{tabular}
+	\end{table}
+
+	\subsection{Making JK faces}
+
+	\begin{minipage}{0.25\textwidth}
+	\centering
+	\tdplotsetmaincoords{60}{130}
+	\begin{tikzpicture}[scale=2,tdplot_main_coords]
+	\coordinate (O) at (0,0,0);
+	\tdplotsetcoord{P}{1.732}{54.74}{45}
+
+	\draw[color=red] (O) -- (Px);
+	\draw[color=red] (O) -- (Py);
+	\draw[color=red] (O) -- (Pz);
+	\draw[color=red] (Px) -- (Pxy);
+	\draw[color=red] (Py) -- (Pxy);
+	\draw[color=red] (Px) -- (Pxz);
+	\draw[color=red] (Pz) -- (Pxz);
+	\draw[color=red] (Py) -- (Pyz);
+	\draw[color=red] (Pz) -- (Pyz);
+	\draw[color=red] (Pxy) -- (P);
+	\draw[color=red] (Pxz) -- (P);
+	\draw[color=red] (Pyz) -- (P);
+
+	\draw[color=blue] (0.2,0.0,0.0) -- (0.2,0.2,0.0);
+	\draw[color=blue] (0.2,0.2,0.0) -- (0.2,0.2,0.2);
+	\draw[color=blue] (0.2,0.2,0.2) -- (0.2,0.0,0.2);
+	\draw[color=blue] (0.2,0.0,0.2) -- (0.2,0.0,0.0);
+
+	\end{tikzpicture}
+	\end{minipage}
+	\begin{minipage}{0.25\textwidth}
+	\centering
+	\tdplotsetmaincoords{60}{130}
+	\begin{tikzpicture}[scale=2,tdplot_main_coords]
+	\coordinate (O) at (0,0,0);
+	\tdplotsetcoord{P}{1.732}{54.74}{45}
+
+	\draw[color=red] (O) -- (Px);
+	\draw[color=red] (O) -- (Py);
+	\draw[color=red] (O) -- (Pz);
+	\draw[color=red] (Px) -- (Pxy);
+	\draw[color=red] (Py) -- (Pxy);
+	\draw[color=red] (Px) -- (Pxz);
+	\draw[color=red] (Pz) -- (Pxz);
+	\draw[color=red] (Py) -- (Pyz);
+	\draw[color=red] (Pz) -- (Pyz);
+	\draw[color=red] (Pxy) -- (P);
+	\draw[color=red] (Pxz) -- (P);
+	\draw[color=red] (Pyz) -- (P);
+
+	\FPset\a{0.2}
+	\FPset\j{0.0}
+	\FPset\i{0.2}
+	%\foreach \j in {0.0,0.2,...,0.8}{
+	    \FPadd\ja\j\a
+		\foreach \k in {0.0,0.2,...,0.8}{
+		    \FPadd\ka\k\a
+
+			\coordinate (A) at (\i,\j,\k);
+		    \coordinate (B) at (\i,\ja,\k);
+		    \coordinate (C) at (\i,\ja,\ka);
+		    \coordinate (D) at (\i,\j,\ka);
+
+		    \draw[color=blue] (A) -- (B);
+		    \draw[color=blue] (B) -- (C);
+		    \draw[color=blue] (C) -- (D);
+		    \draw[color=blue] (D) -- (A);
+		}
+	    %}
+
+	    \end{tikzpicture}
+	    \end{minipage}
+	    \begin{minipage}{0.25\textwidth}
+	    \centering
+	    \tdplotsetmaincoords{60}{130}
+	    \begin{tikzpicture}[scale=2,tdplot_main_coords]
+	    \coordinate (O) at (0,0,0);
+	    \tdplotsetcoord{P}{1.732}{54.74}{45}
+
+	    \draw[color=red] (O) -- (Px);
+	    \draw[color=red] (O) -- (Py);
+	    \draw[color=red] (O) -- (Pz);
+	    \draw[color=red] (Px) -- (Pxy);
+	    \draw[color=red] (Py) -- (Pxy);
+	    \draw[color=red] (Px) -- (Pxz);
+	    \draw[color=red] (Pz) -- (Pxz);
+	    \draw[color=red] (Py) -- (Pyz);
+	    \draw[color=red] (Pz) -- (Pyz);
+	    \draw[color=red] (Pxy) -- (P);
+	    \draw[color=red] (Pxz) -- (P);
+	    \draw[color=red] (Pyz) -- (P);
+
+	    \FPset\a{0.2}
+	    \FPset\i{0.2}
+	    \foreach \j in {0.0,0.2,...,0.8}{
+		\FPadd\ja\j\a
+		    \foreach \k in {0.0,0.2,...,0.8}{
+			\FPadd\ka\k\a
+
+			    \coordinate (A) at (\i,\j,\k);
+			\coordinate (B) at (\i,\ja,\k);
+			\coordinate (C) at (\i,\ja,\ka);
+			\coordinate (D) at (\i,\j,\ka);
+
+			\draw[color=blue] (A) -- (B);
+			\draw[color=blue] (B) -- (C);
+			\draw[color=blue] (C) -- (D);
+			\draw[color=blue] (D) -- (A);
+		    }
+	    }
+
+
+\end{tikzpicture}
+\end{minipage}
+\begin{minipage}{0.25\textwidth}
+\centering
+\tdplotsetmaincoords{60}{130}
+\begin{tikzpicture}[scale=2,tdplot_main_coords]
+\coordinate (O) at (0,0,0);
+\tdplotsetcoord{P}{1.732}{54.74}{45}
+
+\draw[color=red] (O) -- (Px);
+\draw[color=red] (O) -- (Py);
+\draw[color=red] (O) -- (Pz);
+\draw[color=red] (Px) -- (Pxy);
+\draw[color=red] (Py) -- (Pxy);
+\draw[color=red] (Px) -- (Pxz);
+\draw[color=red] (Pz) -- (Pxz);
+\draw[color=red] (Py) -- (Pyz);
+\draw[color=red] (Pz) -- (Pyz);
+\draw[color=red] (Pxy) -- (P);
+\draw[color=red] (Pxz) -- (P);
+\draw[color=red] (Pyz) -- (P);
+
+\FPset\a{0.2}
+\foreach \i in {0.2,0.4,...,0.8}{
+    \foreach \j in {0.0,0.2,...,0.8}{
+	\FPadd\ja\j\a
+	    \foreach \k in {0.0,0.2,...,0.8}{
+		\FPadd\ka\k\a
+
+		    \coordinate (A) at (\i,\j,\k);
+		\coordinate (B) at (\i,\ja,\k);
+		\coordinate (C) at (\i,\ja,\ka);
+		\coordinate (D) at (\i,\j,\ka);
+
+		\draw[color=blue] (A) -- (B);
+		\draw[color=blue] (B) -- (C);
+		\draw[color=blue] (C) -- (D);
+		\draw[color=blue] (D) -- (A);
+	    }
+    }
+}
+
+\end{tikzpicture}
+\end{minipage}
+
+\begin{center}
+\begin{tabular}{lll}
+$I[1,nx-1]$ & $J[0,ny-1]$ & $K[0,nz-1]$\\ 
+\midrule
+$i$ & $j$ & $k$\\
+	$i$ & $j+1$ & $k$\\ 
+	$i$ & $j+1$ & $k+1$\\ 
+	$i$ & $j$ & $k+1$
+	\end{tabular}
+	\end{center}
+
+	\subsection{Making IK faces}
+
+	\begin{minipage}{0.25\textwidth}
+	\centering
+	\tdplotsetmaincoords{60}{130}
+	\begin{tikzpicture}[scale=2,tdplot_main_coords]
+	\coordinate (O) at (0,0,0);
+	\tdplotsetcoord{P}{1.732}{54.74}{45}
+
+	\draw[color=red] (O) -- (Px);
+	\draw[color=red] (O) -- (Py);
+	\draw[color=red] (O) -- (Pz);
+	\draw[color=red] (Px) -- (Pxy);
+	\draw[color=red] (Py) -- (Pxy);
+	\draw[color=red] (Px) -- (Pxz);
+	\draw[color=red] (Pz) -- (Pxz);
+	\draw[color=red] (Py) -- (Pyz);
+	\draw[color=red] (Pz) -- (Pyz);
+	\draw[color=red] (Pxy) -- (P);
+	\draw[color=red] (Pxz) -- (P);
+	\draw[color=red] (Pyz) -- (P);
+
+	\FPset\a{0.2}
+	\FPset\i{0.0}
+	\FPset\j{0.2}
+	\FPset\k{0.0}
+	%\foreach \j in {0.0,0.2,...,0.8}{
+	    \FPadd\ia\i\a
+		%\foreach \k in {0.0,0.2,...,0.1}{
+		    \FPadd\ka\k\a
+
+			\coordinate (A) at (\i,\j,\k);
+		    \coordinate (B) at (\ia,\j,\k);
+		    \coordinate (C) at (\ia,\j,\ka);
+		    \coordinate (D) at (\i,\j,\ka);
+
+		    \draw[color=blue] (A) -- (B);
+		    \draw[color=blue] (B) -- (C);
+		    \draw[color=blue] (C) -- (D);
+		    \draw[color=blue] (D) -- (A);
+		    %}
+	    %}
+
+	    %\draw[color=blue] (0.2,0.0,0.0) -- (0.2,0.2,0.0);
+	    %\draw[color=blue] (0.2,0.2,0.0) -- (0.2,0.2,0.2);
+	    %\draw[color=blue] (0.2,0.2,0.2) -- (0.2,0.0,0.2);
+	    %\draw[color=blue] (0.2,0.0,0.2) -- (0.2,0.0,0.0);
+
+	    \end{tikzpicture}
+	    \end{minipage}
+	    \begin{minipage}{0.25\textwidth}
+	    \centering
+	    \tdplotsetmaincoords{60}{130}
+	    \begin{tikzpicture}[scale=2,tdplot_main_coords]
+	    \coordinate (O) at (0,0,0);
+	    \tdplotsetcoord{P}{1.732}{54.74}{45}
+
+	    \draw[color=red] (O) -- (Px);
+	    \draw[color=red] (O) -- (Py);
+	    \draw[color=red] (O) -- (Pz);
+	    \draw[color=red] (Px) -- (Pxy);
+	    \draw[color=red] (Py) -- (Pxy);
+	    \draw[color=red] (Px) -- (Pxz);
+	    \draw[color=red] (Pz) -- (Pxz);
+	    \draw[color=red] (Py) -- (Pyz);
+	    \draw[color=red] (Pz) -- (Pyz);
+	    \draw[color=red] (Pxy) -- (P);
+	    \draw[color=red] (Pxz) -- (P);
+	    \draw[color=red] (Pyz) -- (P);
+
+	    \FPset\a{0.2}
+	    \FPset\i{0.0}
+	    \FPset\j{0.2}
+	    %\foreach \j in {0.0,0.2,...,0.8}{
+		\FPadd\ia\i\a
+		    \foreach \k in {0.0,0.2,...,0.8}{
+			\FPadd\ka\k\a
+
+			    \coordinate (A) at (\i,\j,\k);
+			\coordinate (B) at (\ia,\j,\k);
+			\coordinate (C) at (\ia,\j,\ka);
+			\coordinate (D) at (\i,\j,\ka);
+
+			\draw[color=blue] (A) -- (B);
+			\draw[color=blue] (B) -- (C);
+			\draw[color=blue] (C) -- (D);
+			\draw[color=blue] (D) -- (A);
+		    }
+		%}
+
+		\end{tikzpicture}
+		\end{minipage}
+		\begin{minipage}{0.25\textwidth}
+		\centering
+		\tdplotsetmaincoords{60}{130}
+		\begin{tikzpicture}[scale=2,tdplot_main_coords]
+		\coordinate (O) at (0,0,0);
+		\tdplotsetcoord{P}{1.732}{54.74}{45}
+
+		\draw[color=red] (O) -- (Px);
+		\draw[color=red] (O) -- (Py);
+		\draw[color=red] (O) -- (Pz);
+		\draw[color=red] (Px) -- (Pxy);
+		\draw[color=red] (Py) -- (Pxy);
+		\draw[color=red] (Px) -- (Pxz);
+		\draw[color=red] (Pz) -- (Pxz);
+		\draw[color=red] (Py) -- (Pyz);
+		\draw[color=red] (Pz) -- (Pyz);
+		\draw[color=red] (Pxy) -- (P);
+		\draw[color=red] (Pxz) -- (P);
+		\draw[color=red] (Pyz) -- (P);
+
+		\FPset\a{0.2}
+		\FPset\j{0.2}
+		\foreach \i in {0.0,0.2,...,0.8}{
+		    \FPadd\ia\i\a
+			\foreach \k in {0.0,0.2,...,0.8}{
+			    \FPadd\ka\k\a
+
+				\coordinate (A) at (\i,\j,\k);
+			    \coordinate (B) at (\ia,\j,\k);
+			    \coordinate (C) at (\ia,\j,\ka);
+			    \coordinate (D) at (\i,\j,\ka);
+
+			    \draw[color=blue] (A) -- (B);
+			    \draw[color=blue] (B) -- (C);
+			    \draw[color=blue] (C) -- (D);
+			    \draw[color=blue] (D) -- (A);
+			}
+		}
+
+
+\end{tikzpicture}
+\end{minipage}
+\begin{minipage}{0.25\textwidth}
+\centering
+\tdplotsetmaincoords{60}{130}
+\begin{tikzpicture}[scale=2,tdplot_main_coords]
+\coordinate (O) at (0,0,0);
+\tdplotsetcoord{P}{1.732}{54.74}{45}
+
+\draw[color=red] (O) -- (Px);
+\draw[color=red] (O) -- (Py);
+\draw[color=red] (O) -- (Pz);
+\draw[color=red] (Px) -- (Pxy);
+\draw[color=red] (Py) -- (Pxy);
+\draw[color=red] (Px) -- (Pxz);
+\draw[color=red] (Pz) -- (Pxz);
+\draw[color=red] (Py) -- (Pyz);
+\draw[color=red] (Pz) -- (Pyz);
+\draw[color=red] (Pxy) -- (P);
+\draw[color=red] (Pxz) -- (P);
+\draw[color=red] (Pyz) -- (P);
+
+\FPset\a{0.2}
+\foreach \j in {0.2,0.4,...,0.8}{
+    \foreach \i in {0.0,0.2,...,0.8}{
+	\FPadd\ia\i\a
+	    \foreach \k in {0.0,0.2,...,0.8}{
+		\FPadd\ka\k\a
+
+		    \coordinate (A) at (\i,\j,\k);
+		\coordinate (B) at (\ia,\j,\k);
+		\coordinate (C) at (\ia,\j,\ka);
+		\coordinate (D) at (\i,\j,\ka);
+
+		\draw[color=blue] (A) -- (B);
+		\draw[color=blue] (B) -- (C);
+		\draw[color=blue] (C) -- (D);
+		\draw[color=blue] (D) -- (A);
+	    }
+    }
+}
+
+\end{tikzpicture}
+\end{minipage}
+
+\section{Face parents}
+
+\begin{tabular}{lllllll}
+Face & Parent 1 I & Parent 1 J & Parent 1 K & Parent 2 I & Parent 2 J & Parent 2 K\\
+	 0 & 0 & 0 & 0 & 0 & 0 & 1\\
+	 1 & 1 & 0 & 0 & 1 & 0 & 1\\
+	 2 & 2 & 0 & 0 & 2 & 0 & 1\\
+	 \end{tabular}
+
+	 \end{document}
