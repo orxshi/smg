@@ -309,7 +309,7 @@ int main()
         {
             Line l(p[i][0][k], p[i][ny][k]);
             auto pts = l.generate(ny);
-            for (int j=0; j<ny+1; ++j)
+            for (int j=1; j<ny; ++j)
             {
                 p[i][j][k] = pts[j];
             }

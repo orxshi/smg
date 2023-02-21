@@ -4,6 +4,15 @@
 \usepackage{float}
 \usepackage{booktabs}
 \usepackage{fp}
+\usepackage{listings}
+
+\lstset{language=C++,
+                basicstyle=\ttfamily,
+                keywordstyle=\color{blue}\ttfamily,
+                stringstyle=\color{red}\ttfamily,
+                commentstyle=\color{green}\ttfamily,
+                morecomment=[l][\color{magenta}]{\#}
+}
 
 \newcommand{\clen}{4.0}
 
@@ -11,7 +20,7 @@
 
 \section{Coordinate system}
 
-\begin{figure}
+\begin{figure}[H]
 \centering
 
 \tdplotsetmaincoords{60}{130}
@@ -48,7 +57,7 @@ Provide $nx$, $ny$, $nz$.
 
 Only points and cells use IJK indices. Surfaces and faces have numerals.
 
-\section{Generating points}
+\section{Corner points}
 
 There $(nx+1)\times (ny+1) \times (nz+1)$ points will be allocated.
 
@@ -102,6 +111,8 @@ Point & I & J & K\\
 \end{tikzpicture}
 \end{figure}
 
+\section{Generating edge points}
+
 Lines are made in the following order.
 
 \begin{figure}[H]
@@ -128,29 +139,31 @@ Lines are made in the following order.
 \end{tikzpicture}
 \end{figure}
 
-\begin{figure}[H]
-\centering
-\tdplotsetmaincoords{60}{130}
+WARNING: Edge points in along k-direction will be generated during generation of surface points on IK plane.
 
-\begin{tikzpicture}[scale=2,tdplot_main_coords]
-\coordinate (O) at (0,0,0);
-\tdplotsetcoord{P}{1.732}{54.74}{45}
-
-\draw[color=red] (O) -- (Px);
-\draw[color=red] (O) -- (Py);
-\draw[color=red,->] (O) -- node[black]{$8$} (Pz);
-\draw[color=red] (Px) -- (Pxy);
-\draw[color=red] (Py) -- (Pxy);
-\draw[color=red,->] (Px) -- node[black]{$9$} (Pxz);
-\draw[color=red] (Pz) -- (Pxz);
-\draw[color=red,->] (Py) -- node[black]{$11$} (Pyz);
-\draw[color=red] (Pz) -- (Pyz);
-\draw[color=red,->] (Pxy) -- node[black]{$10$} (P);
-\draw[color=red] (Pxz) -- (P);
-\draw[color=red] (Pyz) -- (P);
-
-\end{tikzpicture}
-\end{figure}
+%\begin{figure}[H]
+%\centering
+%\tdplotsetmaincoords{60}{130}
+%
+%\begin{tikzpicture}[scale=2,tdplot_main_coords]
+%\coordinate (O) at (0,0,0);
+%\tdplotsetcoord{P}{1.732}{54.74}{45}
+%
+%\draw[color=red] (O) -- (Px);
+%\draw[color=red] (O) -- (Py);
+%\draw[color=red,->] (O) -- node[black]{$8$} (Pz);
+%\draw[color=red] (Px) -- (Pxy);
+%\draw[color=red] (Py) -- (Pxy);
+%\draw[color=red,->] (Px) -- node[black]{$9$} (Pxz);
+%\draw[color=red] (Pz) -- (Pxz);
+%\draw[color=red,->] (Py) -- node[black]{$11$} (Pyz);
+%\draw[color=red] (Pz) -- (Pyz);
+%\draw[color=red,->] (Pxy) -- node[black]{$10$} (P);
+%\draw[color=red] (Pxz) -- (P);
+%\draw[color=red] (Pyz) -- (P);
+%
+%\end{tikzpicture}
+%\end{figure}
 
 Discretize lines 0, 2, 4, 6 to $nx$ points. With initial and end points, you will end up with $nx$ points.
 
@@ -276,270 +289,258 @@ Discretize lines 0, 2, 4, 6 to $nx$ points. With initial and end points, you wil
 \end{tikzpicture}
 \end{minipage}
 
+WARNING: Edge points in other planes will be generated implicitly during generation of inner points.
 
 
-Discretize lines 1, 3, 5, 7 to $ny$ points.
+%Discretize lines 1, 3, 5, 7 to $ny$ points.
+%
+%\begin{minipage}{.45\textwidth}
+%\centering
+%\tdplotsetmaincoords{60}{130}
+%
+%\begin{tikzpicture}[scale=2,tdplot_main_coords]
+%\coordinate (O) at (0,0,0);
+%\tdplotsetcoord{P}{1.732}{54.74}{45}
+%
+%\fill (1.0,0.0,0.0) circle (0.3mm);
+%\fill (1.0,0.2,0.0) circle (0.3mm) ;
+%\fill (1.0,0.4,0.0) circle (0.3mm) ;
+%\fill (1.0,0.6,0.0) circle (0.3mm) ;
+%\fill (1.0,0.8,0.0) circle (0.3mm) ;
+%\fill (1.0,1.0,0.0) circle (0.3mm) ;
+%
+%\draw[color=red] (O) -- (Px);
+%\draw[color=red] (O) -- (Py);
+%\draw[color=red] (O) -- (Pz);
+%\draw[color=red] (Px) -- (Pxy);
+%\draw[color=red] (Py) -- (Pxy);
+%\draw[color=red] (Px) -- (Pxz);
+%\draw[color=red] (Pz) -- (Pxz);
+%\draw[color=red] (Py) -- (Pyz);
+%\draw[color=red] (Pz) -- (Pyz);
+%\draw[color=red] (Pxy) -- (P);
+%\draw[color=red] (Pxz) -- (P);
+%\draw[color=red] (Pyz) -- (P);
+%
+%\end{tikzpicture}
+%\end{minipage}
+%\begin{minipage}{0.45\textwidth}
+%\centering
+%\tdplotsetmaincoords{60}{130}
+%
+%\begin{tikzpicture}[scale=2,tdplot_main_coords]
+%\coordinate (O) at (0,0,0);
+%\tdplotsetcoord{P}{1.732}{54.74}{45}
+%
+%\fill (0.0,0.0,0.0) circle (0.3mm);
+%\fill (0.0,0.2,0.0) circle (0.3mm) ;
+%\fill (0.0,0.4,0.0) circle (0.3mm) ;
+%\fill (0.0,0.6,0.0) circle (0.3mm) ;
+%\fill (0.0,0.8,0.0) circle (0.3mm) ;
+%\fill (0.0,1.0,0.0) circle (0.3mm) ;
+%
+%\draw[color=red] (O) -- (Px);
+%\draw[color=red] (O) -- (Py);
+%\draw[color=red] (O) -- (Pz);
+%\draw[color=red] (Px) -- (Pxy);
+%\draw[color=red] (Py) -- (Pxy);
+%\draw[color=red] (Px) -- (Pxz);
+%\draw[color=red] (Pz) -- (Pxz);
+%\draw[color=red] (Py) -- (Pyz);
+%\draw[color=red] (Pz) -- (Pyz);
+%\draw[color=red] (Pxy) -- (P);
+%\draw[color=red] (Pxz) -- (P);
+%\draw[color=red] (Pyz) -- (P);
+%
+%\end{tikzpicture}
+%\end{minipage}
+%
+%\begin{minipage}{.45\textwidth}
+%\centering
+%\tdplotsetmaincoords{60}{130}
+%
+%\begin{tikzpicture}[scale=2,tdplot_main_coords]
+%\coordinate (O) at (0,0,0);
+%\tdplotsetcoord{P}{1.732}{54.74}{45}
+%
+%\fill (1.0,0.0,1.0) circle (0.3mm);
+%\fill (1.0,0.2,1.0) circle (0.3mm) ;
+%\fill (1.0,0.4,1.0) circle (0.3mm) ;
+%\fill (1.0,0.6,1.0) circle (0.3mm) ;
+%\fill (1.0,0.8,1.0) circle (0.3mm) ;
+%\fill (1.0,1.0,1.0) circle (0.3mm) ;
+%
+%\draw[color=red] (O) -- (Px);
+%\draw[color=red] (O) -- (Py);
+%\draw[color=red] (O) -- (Pz);
+%\draw[color=red] (Px) -- (Pxy);
+%\draw[color=red] (Py) -- (Pxy);
+%\draw[color=red] (Px) -- (Pxz);
+%\draw[color=red] (Pz) -- (Pxz);
+%\draw[color=red] (Py) -- (Pyz);
+%\draw[color=red] (Pz) -- (Pyz);
+%\draw[color=red] (Pxy) -- (P);
+%\draw[color=red] (Pxz) -- (P);
+%\draw[color=red] (Pyz) -- (P);
+%
+%\end{tikzpicture}
+%\end{minipage}
+%\begin{minipage}{0.45\textwidth}
+%\centering
+%\tdplotsetmaincoords{60}{130}
+%
+%\begin{tikzpicture}[scale=2,tdplot_main_coords]
+%\coordinate (O) at (0,0,0);
+%\tdplotsetcoord{P}{1.732}{54.74}{45}
+%
+%\fill (0.0,0.0,1.0) circle (0.3mm);
+%\fill (0.0,0.2,1.0) circle (0.3mm) ;
+%\fill (0.0,0.4,1.0) circle (0.3mm) ;
+%\fill (0.0,0.6,1.0) circle (0.3mm) ;
+%\fill (0.0,0.8,1.0) circle (0.3mm) ;
+%\fill (0.0,1.0,1.0) circle (0.3mm) ;
+%
+%\draw[color=red] (O) -- (Px);
+%\draw[color=red] (O) -- (Py);
+%\draw[color=red] (O) -- (Pz);
+%\draw[color=red] (Px) -- (Pxy);
+%\draw[color=red] (Py) -- (Pxy);
+%\draw[color=red] (Px) -- (Pxz);
+%\draw[color=red] (Pz) -- (Pxz);
+%\draw[color=red] (Py) -- (Pyz);
+%\draw[color=red] (Pz) -- (Pyz);
+%\draw[color=red] (Pxy) -- (P);
+%\draw[color=red] (Pxz) -- (P);
+%\draw[color=red] (Pyz) -- (P);
+%
+%\end{tikzpicture}
+%\end{minipage}
+%
+%Discretize lines 8, 9, 10, 11 to $nz$ points.
+%
+%\begin{minipage}{.45\textwidth}
+%\centering
+%\tdplotsetmaincoords{60}{130}
+%
+%\begin{tikzpicture}[scale=2,tdplot_main_coords]
+%\coordinate (O) at (0,0,0);
+%\tdplotsetcoord{P}{1.732}{54.74}{45}
+%
+%\fill (0.0,0.0,0.0) circle (0.3mm);
+%\fill (0.0,0.0,0.2) circle (0.3mm) ;
+%\fill (0.0,0.0,0.4) circle (0.3mm) ;
+%\fill (0.0,0.0,0.6) circle (0.3mm) ;
+%\fill (0.0,0.0,0.8) circle (0.3mm) ;
+%\fill (0.0,0.0,1.0) circle (0.3mm) ;
+%
+%\draw[color=red] (O) -- (Px);
+%\draw[color=red] (O) -- (Py);
+%\draw[color=red] (O) -- (Pz);
+%\draw[color=red] (Px) -- (Pxy);
+%\draw[color=red] (Py) -- (Pxy);
+%\draw[color=red] (Px) -- (Pxz);
+%\draw[color=red] (Pz) -- (Pxz);
+%\draw[color=red] (Py) -- (Pyz);
+%\draw[color=red] (Pz) -- (Pyz);
+%\draw[color=red] (Pxy) -- (P);
+%\draw[color=red] (Pxz) -- (P);
+%\draw[color=red] (Pyz) -- (P);
+%
+%\end{tikzpicture}
+%\end{minipage}
+%\begin{minipage}{0.45\textwidth}
+%\centering
+%\tdplotsetmaincoords{60}{130}
+%
+%\begin{tikzpicture}[scale=2,tdplot_main_coords]
+%\coordinate (O) at (0,0,0);
+%\tdplotsetcoord{P}{1.732}{54.74}{45}
+%
+%\fill (1.0,0.0,0.0) circle (0.3mm);
+%\fill (1.0,0.0,0.2) circle (0.3mm) ;
+%\fill (1.0,0.0,0.4) circle (0.3mm) ;
+%\fill (1.0,0.0,0.6) circle (0.3mm) ;
+%\fill (1.0,0.0,0.8) circle (0.3mm) ;
+%\fill (1.0,0.0,1.0) circle (0.3mm) ;
+%
+%\draw[color=red] (O) -- (Px);
+%\draw[color=red] (O) -- (Py);
+%\draw[color=red] (O) -- (Pz);
+%\draw[color=red] (Px) -- (Pxy);
+%\draw[color=red] (Py) -- (Pxy);
+%\draw[color=red] (Px) -- (Pxz);
+%\draw[color=red] (Pz) -- (Pxz);
+%\draw[color=red] (Py) -- (Pyz);
+%\draw[color=red] (Pz) -- (Pyz);
+%\draw[color=red] (Pxy) -- (P);
+%\draw[color=red] (Pxz) -- (P);
+%\draw[color=red] (Pyz) -- (P);
+%
+%\end{tikzpicture}
+%\end{minipage}
+%
+%\begin{minipage}{.45\textwidth}
+%\centering
+%\tdplotsetmaincoords{60}{130}
+%
+%\begin{tikzpicture}[scale=2,tdplot_main_coords]
+%\coordinate (O) at (0,0,0);
+%\tdplotsetcoord{P}{1.732}{54.74}{45}
+%
+%\fill (1.0,1.0,0.0) circle (0.3mm);
+%\fill (1.0,1.0,0.2) circle (0.3mm) ;
+%\fill (1.0,1.0,0.4) circle (0.3mm) ;
+%\fill (1.0,1.0,0.6) circle (0.3mm) ;
+%\fill (1.0,1.0,0.8) circle (0.3mm) ;
+%\fill (1.0,1.0,1.0) circle (0.3mm) ;
+%
+%\draw[color=red] (O) -- (Px);
+%\draw[color=red] (O) -- (Py);
+%\draw[color=red] (O) -- (Pz);
+%\draw[color=red] (Px) -- (Pxy);
+%\draw[color=red] (Py) -- (Pxy);
+%\draw[color=red] (Px) -- (Pxz);
+%\draw[color=red] (Pz) -- (Pxz);
+%\draw[color=red] (Py) -- (Pyz);
+%\draw[color=red] (Pz) -- (Pyz);
+%\draw[color=red] (Pxy) -- (P);
+%\draw[color=red] (Pxz) -- (P);
+%\draw[color=red] (Pyz) -- (P);
+%
+%\end{tikzpicture}
+%\end{minipage}
+%\begin{minipage}{0.45\textwidth}
+%\centering
+%\tdplotsetmaincoords{60}{130}
+%
+%\begin{tikzpicture}[scale=2,tdplot_main_coords]
+%\coordinate (O) at (0,0,0);
+%\tdplotsetcoord{P}{1.732}{54.74}{45}
+%
+%\fill (0.0,1.0,0.0) circle (0.3mm);
+%\fill (0.0,1.0,0.2) circle (0.3mm) ;
+%\fill (0.0,1.0,0.4) circle (0.3mm) ;
+%\fill (0.0,1.0,0.6) circle (0.3mm) ;
+%\fill (0.0,1.0,0.8) circle (0.3mm) ;
+%\fill (0.0,1.0,1.0) circle (0.3mm) ;
+%
+%\draw[color=red] (O) -- (Px);
+%\draw[color=red] (O) -- (Py);
+%\draw[color=red] (O) -- (Pz);
+%\draw[color=red] (Px) -- (Pxy);
+%\draw[color=red] (Py) -- (Pxy);
+%\draw[color=red] (Px) -- (Pxz);
+%\draw[color=red] (Pz) -- (Pxz);
+%\draw[color=red] (Py) -- (Pyz);
+%\draw[color=red] (Pz) -- (Pyz);
+%\draw[color=red] (Pxy) -- (P);
+%\draw[color=red] (Pxz) -- (P);
+%\draw[color=red] (Pyz) -- (P);
+%
+%\end{tikzpicture}
+%\end{minipage}
 
-\begin{minipage}{.45\textwidth}
-\centering
-\tdplotsetmaincoords{60}{130}
-
-\begin{tikzpicture}[scale=2,tdplot_main_coords]
-\coordinate (O) at (0,0,0);
-\tdplotsetcoord{P}{1.732}{54.74}{45}
-
-\fill (1.0,0.0,0.0) circle (0.3mm);
-\fill (1.0,0.2,0.0) circle (0.3mm) ;
-\fill (1.0,0.4,0.0) circle (0.3mm) ;
-\fill (1.0,0.6,0.0) circle (0.3mm) ;
-\fill (1.0,0.8,0.0) circle (0.3mm) ;
-\fill (1.0,1.0,0.0) circle (0.3mm) ;
-
-\draw[color=red] (O) -- (Px);
-\draw[color=red] (O) -- (Py);
-\draw[color=red] (O) -- (Pz);
-\draw[color=red] (Px) -- (Pxy);
-\draw[color=red] (Py) -- (Pxy);
-\draw[color=red] (Px) -- (Pxz);
-\draw[color=red] (Pz) -- (Pxz);
-\draw[color=red] (Py) -- (Pyz);
-\draw[color=red] (Pz) -- (Pyz);
-\draw[color=red] (Pxy) -- (P);
-\draw[color=red] (Pxz) -- (P);
-\draw[color=red] (Pyz) -- (P);
-
-\end{tikzpicture}
-\end{minipage}
-\begin{minipage}{0.45\textwidth}
-\centering
-\tdplotsetmaincoords{60}{130}
-
-\begin{tikzpicture}[scale=2,tdplot_main_coords]
-\coordinate (O) at (0,0,0);
-\tdplotsetcoord{P}{1.732}{54.74}{45}
-
-\fill (0.0,0.0,0.0) circle (0.3mm);
-\fill (0.0,0.2,0.0) circle (0.3mm) ;
-\fill (0.0,0.4,0.0) circle (0.3mm) ;
-\fill (0.0,0.6,0.0) circle (0.3mm) ;
-\fill (0.0,0.8,0.0) circle (0.3mm) ;
-\fill (0.0,1.0,0.0) circle (0.3mm) ;
-
-\draw[color=red] (O) -- (Px);
-\draw[color=red] (O) -- (Py);
-\draw[color=red] (O) -- (Pz);
-\draw[color=red] (Px) -- (Pxy);
-\draw[color=red] (Py) -- (Pxy);
-\draw[color=red] (Px) -- (Pxz);
-\draw[color=red] (Pz) -- (Pxz);
-\draw[color=red] (Py) -- (Pyz);
-\draw[color=red] (Pz) -- (Pyz);
-\draw[color=red] (Pxy) -- (P);
-\draw[color=red] (Pxz) -- (P);
-\draw[color=red] (Pyz) -- (P);
-
-\end{tikzpicture}
-\end{minipage}
-
-\begin{minipage}{.45\textwidth}
-\centering
-\tdplotsetmaincoords{60}{130}
-
-\begin{tikzpicture}[scale=2,tdplot_main_coords]
-\coordinate (O) at (0,0,0);
-\tdplotsetcoord{P}{1.732}{54.74}{45}
-
-\fill (1.0,0.0,1.0) circle (0.3mm);
-\fill (1.0,0.2,1.0) circle (0.3mm) ;
-\fill (1.0,0.4,1.0) circle (0.3mm) ;
-\fill (1.0,0.6,1.0) circle (0.3mm) ;
-\fill (1.0,0.8,1.0) circle (0.3mm) ;
-\fill (1.0,1.0,1.0) circle (0.3mm) ;
-
-\draw[color=red] (O) -- (Px);
-\draw[color=red] (O) -- (Py);
-\draw[color=red] (O) -- (Pz);
-\draw[color=red] (Px) -- (Pxy);
-\draw[color=red] (Py) -- (Pxy);
-\draw[color=red] (Px) -- (Pxz);
-\draw[color=red] (Pz) -- (Pxz);
-\draw[color=red] (Py) -- (Pyz);
-\draw[color=red] (Pz) -- (Pyz);
-\draw[color=red] (Pxy) -- (P);
-\draw[color=red] (Pxz) -- (P);
-\draw[color=red] (Pyz) -- (P);
-
-\end{tikzpicture}
-\end{minipage}
-\begin{minipage}{0.45\textwidth}
-\centering
-\tdplotsetmaincoords{60}{130}
-
-\begin{tikzpicture}[scale=2,tdplot_main_coords]
-\coordinate (O) at (0,0,0);
-\tdplotsetcoord{P}{1.732}{54.74}{45}
-
-\fill (0.0,0.0,1.0) circle (0.3mm);
-\fill (0.0,0.2,1.0) circle (0.3mm) ;
-\fill (0.0,0.4,1.0) circle (0.3mm) ;
-\fill (0.0,0.6,1.0) circle (0.3mm) ;
-\fill (0.0,0.8,1.0) circle (0.3mm) ;
-\fill (0.0,1.0,1.0) circle (0.3mm) ;
-
-\draw[color=red] (O) -- (Px);
-\draw[color=red] (O) -- (Py);
-\draw[color=red] (O) -- (Pz);
-\draw[color=red] (Px) -- (Pxy);
-\draw[color=red] (Py) -- (Pxy);
-\draw[color=red] (Px) -- (Pxz);
-\draw[color=red] (Pz) -- (Pxz);
-\draw[color=red] (Py) -- (Pyz);
-\draw[color=red] (Pz) -- (Pyz);
-\draw[color=red] (Pxy) -- (P);
-\draw[color=red] (Pxz) -- (P);
-\draw[color=red] (Pyz) -- (P);
-
-\end{tikzpicture}
-\end{minipage}
-
-Discretize lines 8, 9, 10, 11 to $nz$ points.
-
-\begin{minipage}{.45\textwidth}
-\centering
-\tdplotsetmaincoords{60}{130}
-
-\begin{tikzpicture}[scale=2,tdplot_main_coords]
-\coordinate (O) at (0,0,0);
-\tdplotsetcoord{P}{1.732}{54.74}{45}
-
-\fill (0.0,0.0,0.0) circle (0.3mm);
-\fill (0.0,0.0,0.2) circle (0.3mm) ;
-\fill (0.0,0.0,0.4) circle (0.3mm) ;
-\fill (0.0,0.0,0.6) circle (0.3mm) ;
-\fill (0.0,0.0,0.8) circle (0.3mm) ;
-\fill (0.0,0.0,1.0) circle (0.3mm) ;
-
-\draw[color=red] (O) -- (Px);
-\draw[color=red] (O) -- (Py);
-\draw[color=red] (O) -- (Pz);
-\draw[color=red] (Px) -- (Pxy);
-\draw[color=red] (Py) -- (Pxy);
-\draw[color=red] (Px) -- (Pxz);
-\draw[color=red] (Pz) -- (Pxz);
-\draw[color=red] (Py) -- (Pyz);
-\draw[color=red] (Pz) -- (Pyz);
-\draw[color=red] (Pxy) -- (P);
-\draw[color=red] (Pxz) -- (P);
-\draw[color=red] (Pyz) -- (P);
-
-\end{tikzpicture}
-\end{minipage}
-\begin{minipage}{0.45\textwidth}
-\centering
-\tdplotsetmaincoords{60}{130}
-
-\begin{tikzpicture}[scale=2,tdplot_main_coords]
-\coordinate (O) at (0,0,0);
-\tdplotsetcoord{P}{1.732}{54.74}{45}
-
-\fill (1.0,0.0,0.0) circle (0.3mm);
-\fill (1.0,0.0,0.2) circle (0.3mm) ;
-\fill (1.0,0.0,0.4) circle (0.3mm) ;
-\fill (1.0,0.0,0.6) circle (0.3mm) ;
-\fill (1.0,0.0,0.8) circle (0.3mm) ;
-\fill (1.0,0.0,1.0) circle (0.3mm) ;
-
-\draw[color=red] (O) -- (Px);
-\draw[color=red] (O) -- (Py);
-\draw[color=red] (O) -- (Pz);
-\draw[color=red] (Px) -- (Pxy);
-\draw[color=red] (Py) -- (Pxy);
-\draw[color=red] (Px) -- (Pxz);
-\draw[color=red] (Pz) -- (Pxz);
-\draw[color=red] (Py) -- (Pyz);
-\draw[color=red] (Pz) -- (Pyz);
-\draw[color=red] (Pxy) -- (P);
-\draw[color=red] (Pxz) -- (P);
-\draw[color=red] (Pyz) -- (P);
-
-\end{tikzpicture}
-\end{minipage}
-
-\begin{minipage}{.45\textwidth}
-\centering
-\tdplotsetmaincoords{60}{130}
-
-\begin{tikzpicture}[scale=2,tdplot_main_coords]
-\coordinate (O) at (0,0,0);
-\tdplotsetcoord{P}{1.732}{54.74}{45}
-
-\fill (1.0,1.0,0.0) circle (0.3mm);
-\fill (1.0,1.0,0.2) circle (0.3mm) ;
-\fill (1.0,1.0,0.4) circle (0.3mm) ;
-\fill (1.0,1.0,0.6) circle (0.3mm) ;
-\fill (1.0,1.0,0.8) circle (0.3mm) ;
-\fill (1.0,1.0,1.0) circle (0.3mm) ;
-
-\draw[color=red] (O) -- (Px);
-\draw[color=red] (O) -- (Py);
-\draw[color=red] (O) -- (Pz);
-\draw[color=red] (Px) -- (Pxy);
-\draw[color=red] (Py) -- (Pxy);
-\draw[color=red] (Px) -- (Pxz);
-\draw[color=red] (Pz) -- (Pxz);
-\draw[color=red] (Py) -- (Pyz);
-\draw[color=red] (Pz) -- (Pyz);
-\draw[color=red] (Pxy) -- (P);
-\draw[color=red] (Pxz) -- (P);
-\draw[color=red] (Pyz) -- (P);
-
-\end{tikzpicture}
-\end{minipage}
-\begin{minipage}{0.45\textwidth}
-\centering
-\tdplotsetmaincoords{60}{130}
-
-\begin{tikzpicture}[scale=2,tdplot_main_coords]
-\coordinate (O) at (0,0,0);
-\tdplotsetcoord{P}{1.732}{54.74}{45}
-
-\fill (0.0,1.0,0.0) circle (0.3mm);
-\fill (0.0,1.0,0.2) circle (0.3mm) ;
-\fill (0.0,1.0,0.4) circle (0.3mm) ;
-\fill (0.0,1.0,0.6) circle (0.3mm) ;
-\fill (0.0,1.0,0.8) circle (0.3mm) ;
-\fill (0.0,1.0,1.0) circle (0.3mm) ;
-
-\draw[color=red] (O) -- (Px);
-\draw[color=red] (O) -- (Py);
-\draw[color=red] (O) -- (Pz);
-\draw[color=red] (Px) -- (Pxy);
-\draw[color=red] (Py) -- (Pxy);
-\draw[color=red] (Px) -- (Pxz);
-\draw[color=red] (Pz) -- (Pxz);
-\draw[color=red] (Py) -- (Pyz);
-\draw[color=red] (Pz) -- (Pyz);
-\draw[color=red] (Pxy) -- (P);
-\draw[color=red] (Pxz) -- (P);
-\draw[color=red] (Pyz) -- (P);
-
-\end{tikzpicture}
-\end{minipage}
-
-\begin{center}
-\begin{tabular}{lll}
-$I[0,nx-1]$ & $J[1,ny-1]$ & $K[0,nz-1]$\\ 
-\midrule
-$i$ & $j$ & $k$\\
-	$i+1$ & $j$ & $k$\\ 
-	$i+1$ & $j$ & $k+1$\\ 
-	$i$ & $j$ & $k+1$
-	\end{tabular}
-	\end{center}
-
-	\subsection{Generation of inner surface points}
-
-	Make lines from $i=[1,nx-1]$, $j=0$ and $k=[1,nz-1]$.
+	\subsection{Generation of surface points on IK plane}
 
 	\begin{figure}[H]
 	\centering
@@ -573,7 +574,18 @@ $i$ & $j$ & $k$\\
 
 \end{tikzpicture}
 
-Make lines from $i=[1,nx-1]$, $j=ny-1$ and $k=[1,nz-1]$.
+\begin{lstlisting}
+for (int i=0; i<nx+1; ++i)
+{
+    Line l(p[i][0][0], p[i][0][nz]);
+
+    for (int k=1; k<nz; ++k)
+    {
+	auto pts = l.generate(nz);
+	p[i][0][k] = pts[k];
+    }
+}
+\end{lstlisting}
 
 \end{figure}
 
@@ -608,9 +620,91 @@ Make lines from $i=[1,nx-1]$, $j=ny-1$ and $k=[1,nz-1]$.
 \draw[color=blue] (0.8,1.0,0.1) -- (0.8,1.0,0.9);
 
 \end{tikzpicture}
-
-
 \end{figure}
+
+\begin{lstlisting}
+for (int i=0; i<nx+1; ++i)
+{
+    Line l(p[i][ny][0], p[i][ny][nz]);
+
+    for (int k=1; k<nz; ++k)
+    {
+	auto pts = l.generate(nz);
+	p[i][ny][k] = pts[k];
+    }
+}
+\end{lstlisting}
+
+At this stage, you should have the points in the figures below. The points are shown in two figures for easy visualization.
+
+\begin{minipage}{0.45\textwidth}
+\centering
+\tdplotsetmaincoords{60}{130}
+\begin{tikzpicture}[scale=2,tdplot_main_coords]
+\coordinate (O) at (0,0,0);
+\tdplotsetcoord{P}{1.732}{54.74}{45}
+
+\draw[color=red] (O) -- (Px);
+\draw[color=red] (O) -- (Py);
+\draw[color=red] (O) -- (Pz);
+\draw[color=red] (Px) -- (Pxy);
+\draw[color=red] (Py) -- (Pxy);
+\draw[color=red] (Px) -- (Pxz);
+\draw[color=red] (Pz) -- (Pxz);
+\draw[color=red] (Py) -- (Pyz);
+\draw[color=red] (Pz) -- (Pyz);
+\draw[color=red] (Pxy) -- (P);
+\draw[color=red] (Pxz) -- (P);
+\draw[color=red] (Pyz) -- (P);
+
+\FPset\a{0.2}
+\FPset\j{0.0}
+    \foreach \i in {0.0,0.2,...,1.0}{
+	\FPadd\ia\i\a
+	    \foreach \k in {0.0,0.2,...,1.0}{
+		\FPadd\ka\k\a
+
+		    \fill (\i,\j,\k) circle (0.3mm) ;
+	    }
+    }
+
+\end{tikzpicture}
+\end{minipage}
+\begin{minipage}{0.45\textwidth}
+\centering
+\tdplotsetmaincoords{60}{130}
+\begin{tikzpicture}[scale=2,tdplot_main_coords]
+\coordinate (O) at (0,0,0);
+\tdplotsetcoord{P}{1.732}{54.74}{45}
+
+\draw[color=red] (O) -- (Px);
+\draw[color=red] (O) -- (Py);
+\draw[color=red] (O) -- (Pz);
+\draw[color=red] (Px) -- (Pxy);
+\draw[color=red] (Py) -- (Pxy);
+\draw[color=red] (Px) -- (Pxz);
+\draw[color=red] (Pz) -- (Pxz);
+\draw[color=red] (Py) -- (Pyz);
+\draw[color=red] (Pz) -- (Pyz);
+\draw[color=red] (Pxy) -- (P);
+\draw[color=red] (Pxz) -- (P);
+\draw[color=red] (Pyz) -- (P);
+
+\FPset\a{0.2}
+\FPset\j{1.0}
+    \foreach \i in {0.0,0.2,...,1.0}{
+	\FPadd\ia\i\a
+	    \foreach \k in {0.0,0.2,...,1.0}{
+		\FPadd\ka\k\a
+
+		    \fill (\i,\j,\k) circle (0.3mm) ;
+	    }
+    }
+
+\end{tikzpicture}
+\end{minipage}
+
+WARNING: Surface points in other planes will be generated implicitly during generation of inner points.
 
 \subsection{Generation of inner points}
 
@@ -812,33 +906,43 @@ Connect surface points. Make lines from $i=[0,nx]$, $j=[0,ny]$ and $k=[0,nz]$. T
 
 
 
+\begin{lstlisting}
+for (int i=0; i<nx+1; ++i)
+{
+    for (int k=0; k<nz+1; ++k)
+    {
+	Line l(p[i][0][k], p[i][ny][k]);
+	auto pts = l.generate(ny);
+	for (int j=1; j<ny; ++j)
+	{
+	    p[i][j][k] = pts[j];
+	}
+    }
+}
+\end{lstlisting}
+
 
 
 \section{Making surfaces}
 
 \subsection{IJ planes}
 
-\begin{table}[H]
-\centering
-\caption{Point indices to make IJ0 surfaces}
-\begin{tabular}{lll}
-I$[0,nx-1]$ & J$[0,ny-1]$ & K$[0]$\\
-	\midrule
-	$i$ & $j$ & $k$\\
-	    $i+1$ & $j$ & $k$\\
-	    $i+1$ & $j+1$ & $k$\\
-	    $i$ & $j+1$ & $k$
-	    \end{tabular}
-	    \end{table}
-
-    for (int j=0; j<ny; ++j)
+\begin{lstlisting}
+for (int j=0; j<ny; ++j)
+{
+    for (int i=0; i<nx; ++i)
     {
-        for (int i=0; i<nx; ++i)
-        {
-            surfaces.push_back(std::vector<IJK>{IJK(i,j,0),  IJK(i+1, j, 0),  IJK(i+1, j+1, 0),  IJK(i, j+1, 0)});
-            surfaces.push_back(std::vector<IJK>{IJK(i,j,nz), IJK(i+1, j, nz), IJK(i+1, j+1, nz), IJK(i, j+1, nz)});
-        }
+	(i,j,0) , (i+1, j, 0) , (i+1, j+1, 0) , (i, j+1, 0);
+        (i,j,nz), (i+1, j, nz), (i+1, j+1, nz), (i, j+1, nz);
     }
+
+    parent of lower surface: 
+	cell (i, j, 0)
+    parent of upper surface: 
+	cell (i, j, nz-1)
+}
+\end{lstlisting}
+
 
 	    \begin{minipage}{0.3\textwidth}
 	    \centering
@@ -1146,18 +1250,22 @@ I$[0,nx-1]$ & J$[0,ny-1]$ & K$[0]$\\
 
 \subsection{JK planes}
 
-\begin{table}[H]
-\centering
-\caption{Point indices to make IJ surfaces}
-\begin{tabular}{lll}
-I$[0,nx-1]$ & J$[0,ny-1]$ & K$[0]$\\
-	\midrule
-	$i$ & $j$ & $k$\\
-	    $i$ & $j$ & $k+1$\\
-	    $i$ & $j+1$ & $k+1$\\
-	    $i$ & $j+1$ & $k$
-	    \end{tabular}
-	    \end{table}
+\begin{lstlisting}
+for (int j=0; j<ny; ++j)
+{
+    for (int k=0; k<nz; ++k)
+    {
+	(0,j,k) , (0, j, k+1) , (0, j+1, k+1) , (0, j+1, k);
+	(nx,j,k), (nx, j, k+1), (nx, j+1, k+1), (nx, j+1, k);
+    }
+
+    parent of lower surface: 
+	cell (0, j, k)
+    parent of upper surface: 
+	cell (nx-1, j, k)
+}
+\end{lstlisting}
+
 
 	    \begin{minipage}{0.3\textwidth}
 	    \centering
@@ -1441,6 +1549,22 @@ I$[0,nx-1]$ & J$[0,ny-1]$ & K$[0]$\\
 \end{minipage}
 
 \subsection{IK planes}
+
+\begin{lstlisting}
+for (int i=0; i<nx; ++i)
+{
+    for (int k=0; k<nz; ++k)
+    {
+	(i,0,k) , (i+1, 0, k) , (i+1, 0, k+1) , (i, 0, k+1);
+	(i,ny,k), (i+1, ny, k), (i+1, ny, k+1), (i, ny, k+1);
+    }
+
+    parent of lower surface: 
+	cell (i, 0, k)
+    parent of upper surface: 
+	cell (i, ny-1, k)
+}
+\end{lstlisting}
 
 \begin{minipage}{0.3\textwidth}
 \centering
@@ -1744,22 +1868,6 @@ I$[0,nx-1]$ & J$[0,ny-1]$ & K$[0]$\\
 
 \section{Making cells}
 
-\begin{table}[H]
-\centering
-\caption{Point indices to make cell $(i,j,k)$}. Numeral point numbers are to simplify visualization of ordering.
-\begin{tabular}{llll}
-Point & $I[0,nx-1]$ & $J[0,ny-1]$ & $K[0,nz-1]$\\
-	  \midrule
-	  0 & $i$ & $j$ & $k$\\
-	      1 & $i+1$ & $j$ & $k$\\
-	      2 & $i+1$ & $j+1$ & $k$\\
-	      3 & $i$ & $j+1$ & $k$\\
-	      4 & $i$ & $j$ & $k+1$\\
-	      5 & $i+1$ & $j$ & $k+1$\\
-	      6 & $i+1$ & $j+1$ & $k+1$\\
-	      7 & $i$ & $j+1$ & $k+1$
-	      \end{tabular}
-	      \end{table}
 
 	      \begin{figure}[H]
 	      \centering
@@ -1794,9 +1902,50 @@ Point & $I[0,nx-1]$ & $J[0,ny-1]$ & $K[0,nz-1]$\\
 \end{tikzpicture}
 \end{figure}
 
+\begin{lstlisting}
+for (int k=0; k<nz; ++k)
+{
+    for (int j=0; j<ny; ++j)
+    {
+	for (int i=0; i<nx; ++i)
+	{
+	    (i  , j,   k),
+            (i+1, j,   k),
+            (i+1, j+1, k),
+            (i  , j+1, k);
+
+	    (i  , j,   k+1),
+            (i+1, j,   k+1),
+            (i+1, j+1, k+1),
+            (i  , j+1, k+1);
+	}
+    }
+}
+\end{lstlisting}
+
 \section{Making faces}
 
 \subsection{Making IJ faces}
+
+\begin{lstlisting}
+for (int k=1; k<nz; ++k)
+{
+    for (int j=0; j<ny; ++j)
+    {
+	for (int i=0; i<nx; ++i)
+	{
+	    (i  , j,   k),
+            (i+1, j,   k),
+            (i+1, j+1, k),
+            (i  , j+1, k);
+
+	    parents: 
+		1: cell (i, j, k-1)
+		2: cell (i, j, k)
+	}
+    }
+}
+\end{lstlisting}
 
 \begin{minipage}{0.25\textwidth}
 \centering
@@ -1952,20 +2101,27 @@ Point & $I[0,nx-1]$ & $J[0,ny-1]$ & $K[0,nz-1]$\\
 \end{minipage}
 
 
-\begin{table}[H]
-\centering
-\caption{Point indices to make IJ faces}
-\begin{tabular}{lll}
-$I[0,nx-1]$ & $J[0,ny-1]$ & $K[1,nz-1]$\\ 
-\midrule
-$i$ & $j$ & $k$\\
-	$i+1$ & $j$ & $k$\\ 
-	$i+1$ & $j+1$ & $k$\\ 
-	$i$ & $j+1$ & $k$
-	\end{tabular}
-	\end{table}
-
 	\subsection{Making JK faces}
+
+\begin{lstlisting}
+for (int i=1; i<nx; ++i)
+{
+    for (int j=0; j<ny; ++j)
+    {
+	for (int k=0; k<nz; ++k)
+	{
+	    (i  , j  , k),
+            (i  , j  , k+1),
+            (i+1, j+1, k+1),
+            (i  , j+1, k);
+
+	    parents: 
+		1: cell (i-1, j, k)
+		2: cell (i, j, k)
+	}
+    }
+}
+\end{lstlisting}
 
 	\begin{minipage}{0.25\textwidth}
 	\centering
@@ -2121,18 +2277,27 @@ $i$ & $j$ & $k$\\
 \end{tikzpicture}
 \end{minipage}
 
-\begin{center}
-\begin{tabular}{lll}
-$I[1,nx-1]$ & $J[0,ny-1]$ & $K[0,nz-1]$\\ 
-\midrule
-$i$ & $j$ & $k$\\
-	$i$ & $j+1$ & $k$\\ 
-	$i$ & $j+1$ & $k+1$\\ 
-	$i$ & $j$ & $k+1$
-	\end{tabular}
-	\end{center}
-
 	\subsection{Making IK faces}
+
+\begin{lstlisting}
+for (int j=1; j<ny; ++j)
+{
+    for (int i=0; i<nx; ++i)
+    {
+	for (int k=0; k<nz; ++k)
+	{
+	    (i  , j, k),
+            (i+1, j, k),
+            (i+1, j, k+1),
+            (i  , j, k+1);
+
+	    parents: 
+		1: cell (i, j-1, k)
+		2: cell (i, j  , k)
+	}
+    }
+}
+\end{lstlisting}
 
 	\begin{minipage}{0.25\textwidth}
 	\centering
@@ -2308,14 +2473,5 @@ $i$ & $j$ & $k$\\
 
 \end{tikzpicture}
 \end{minipage}
-
-\section{Face parents}
-
-\begin{tabular}{lllllll}
-Face & Parent 1 I & Parent 1 J & Parent 1 K & Parent 2 I & Parent 2 J & Parent 2 K\\
-	 0 & 0 & 0 & 0 & 0 & 0 & 1\\
-	 1 & 1 & 0 & 0 & 1 & 0 & 1\\
-	 2 & 2 & 0 & 0 & 2 & 0 & 1\\
-	 \end{tabular}
 
 	 \end{document}
